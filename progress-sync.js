@@ -1,6 +1,6 @@
 async function refreshStats() {
     try {
-        const response = await fetch('https://fyx-backend.onrender.com/api/stats');
+        const response = await fetch('https://fynexa-client.vercel.app/');
         
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
