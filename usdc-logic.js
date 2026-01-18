@@ -60,20 +60,19 @@ function createTransferInstruction(source, destination, owner, amount) {
 }
 
 // --- ՆՈՐ ՖՈՒՆԿՑԻԱ: Թարմացնում ենք Supabase-ը մեր Vercel API-ի միջոցով ---
-async function syncPaymentToDatabase(amount) {
+async function syncPaymentToDatabase(signature) {
     try {
         const response = await fetch('/api/update-stats', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: Number(amount) })
+            body: JSON.stringify({ signature: signature }) // Ուղարկում ենք signature-ը
         });
-        if (!response.ok) throw new Error("Database sync failed");
-        console.log("✅ Բազան թարմացվեց:", amount, "USDC");
         
-        // Եթե ունես refreshStats ֆունկցիան, կանչիր այն, որ էկրանը միանգամից թարմանա
+        if (!response.ok) throw new Error("Verification failed");
+        
         if (typeof refreshStats === "function") refreshStats();
     } catch (err) {
-        console.error("❌ Բազայի թարմացման սխալ:", err);
+        console.error("❌ Անվտանգության ստուգման սխալ:", err);
     }
 }
 
