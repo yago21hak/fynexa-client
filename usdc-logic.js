@@ -1,4 +1,4 @@
-// usdc-logic.js — USDC գնման տրամաբանություն (առանց առանձին spl-token գրադարանի)
+// usdc-logic.js — USDC գնման տրամաբանություն + Supabase Sync
 
 const TOKEN_PROGRAM_ID = new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
 const ASSOCIATED_TOKEN_PROGRAM_ID = new solanaWeb3.PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
@@ -19,7 +19,6 @@ function showToast(msg) {
     }
 }
 
-// ATA ստեղծման instruction (web3.js-ից)
 function getAssociatedTokenAddressSync(mint, owner) {
     return solanaWeb3.PublicKey.findProgramAddressSync(
         [owner.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()],
@@ -27,7 +26,6 @@ function getAssociatedTokenAddressSync(mint, owner) {
     )[0];
 }
 
-// ATA ստեղծման instruction
 function createAssociatedTokenAccountInstruction(payer, ata, owner, mint) {
     const keys = [
         { pubkey: payer, isSigner: true, isWritable: true },
@@ -38,7 +36,6 @@ function createAssociatedTokenAccountInstruction(payer, ata, owner, mint) {
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
         { pubkey: solanaWeb3.SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
     ];
-
     return new solanaWeb3.TransactionInstruction({
         keys,
         programId: ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -46,23 +43,38 @@ function createAssociatedTokenAccountInstruction(payer, ata, owner, mint) {
     });
 }
 
-// Transfer instruction (manual)
 function createTransferInstruction(source, destination, owner, amount) {
     const data = Buffer.alloc(9);
-    data.writeUInt8(3, 0); // Transfer instruction code
+    data.writeUInt8(3, 0); 
     data.writeBigUInt64LE(BigInt(amount), 1);
-
     const keys = [
         { pubkey: source, isSigner: false, isWritable: true },
         { pubkey: destination, isSigner: false, isWritable: true },
         { pubkey: owner, isSigner: true, isWritable: false },
     ];
-
     return new solanaWeb3.TransactionInstruction({
         keys,
         programId: TOKEN_PROGRAM_ID,
         data,
     });
+}
+
+// --- ՆՈՐ ՖՈՒՆԿՑԻԱ: Թարմացնում ենք Supabase-ը մեր Vercel API-ի միջոցով ---
+async function syncPaymentToDatabase(amount) {
+    try {
+        const response = await fetch('/api/update-stats', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: Number(amount) })
+        });
+        if (!response.ok) throw new Error("Database sync failed");
+        console.log("✅ Բազան թարմացվեց:", amount, "USDC");
+        
+        // Եթե ունես refreshStats ֆունկցիան, կանչիր այն, որ էկրանը միանգամից թարմանա
+        if (typeof refreshStats === "function") refreshStats();
+    } catch (err) {
+        console.error("❌ Բազայի թարմացման սխալ:", err);
+    }
 }
 
 window.initiateUSDCBuy = async function(usdAmount, tokenQty) {
@@ -81,43 +93,21 @@ window.initiateUSDCBuy = async function(usdAmount, tokenQty) {
         showToast("Գործարքը նախապատրաստվում է...");
 
         const transaction = new solanaWeb3.Transaction();
-
         const sourceATA = getAssociatedTokenAddressSync(USDC_MINT, window.walletPublicKey);
         const destATA = getAssociatedTokenAddressSync(USDC_MINT, RECEIVER);
 
         const sourceInfo = await connection.getAccountInfo(sourceATA);
         if (!sourceInfo) {
-            transaction.add(
-                createAssociatedTokenAccountInstruction(
-                    window.walletPublicKey,
-                    sourceATA,
-                    window.walletPublicKey,
-                    USDC_MINT
-                )
-            );
+            transaction.add(createAssociatedTokenAccountInstruction(window.walletPublicKey, sourceATA, window.walletPublicKey, USDC_MINT));
         }
 
         const destInfo = await connection.getAccountInfo(destATA);
         if (!destInfo) {
-            transaction.add(
-                createAssociatedTokenAccountInstruction(
-                    window.walletPublicKey,
-                    destATA,
-                    RECEIVER,
-                    USDC_MINT
-                )
-            );
+            transaction.add(createAssociatedTokenAccountInstruction(window.walletPublicKey, destATA, RECEIVER, USDC_MINT));
         }
 
-        const amountUnits = BigInt(usdAmount * 1_000_000);
-        transaction.add(
-            createTransferInstruction(
-                sourceATA,
-                destATA,
-                window.walletPublicKey,
-                amountUnits
-            )
-        );
+        const amountUnits = BigInt(Math.round(usdAmount * 1_000_000));
+        transaction.add(createTransferInstruction(sourceATA, destATA, window.walletPublicKey, amountUnits));
 
         const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('finalized');
         transaction.recentBlockhash = blockhash;
@@ -131,6 +121,9 @@ window.initiateUSDCBuy = async function(usdAmount, tokenQty) {
             blockhash,
             lastValidBlockHeight
         }, 'confirmed');
+
+        // --- ԱՅՍՏԵՂ ԵՆՔ ԱՎԵԼԱՑՆՈՒՄ ԹԱՐՄԱՑՈՒՄԸ ---
+        await syncPaymentToDatabase(usdAmount);
 
         showToast(`🎉 Հաջողությամբ գնվել է ${tokenQty} FYX!`);
 

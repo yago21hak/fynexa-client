@@ -1,0 +1,5 @@
+git add .
+git commit -m "Fix api path and fetch url"
+git push origin main
+
+Սերվերի թարմացում ։
