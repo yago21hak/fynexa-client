@@ -1,38 +1,43 @@
 async function refreshStats() {
     try {
-        const response = await fetch('https://fynexa-client.vercel.app/');
+        // Մենք դիմում ենք ուղիղ մեր սարքած API-ին
+        const response = await fetch('/api/stats');
         
+        // Ստուգում ենք՝ արդյոք պատասխանը JSON է
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
+            throw new Error(`Server error: ${response.status}`);
         }
 
         const data = await response.json();
-        
-        const raisedUSD = Number(data.raised) || 0;
-        const soldFYX = Number(data.sold) || 0;
-        const remainingFYX = Number(data.remaining) || 100000000;
-        const goalUSD = Number(data.goal) || 900000;
+        console.log("Տվյալները թարմացվեցին:", data);
 
-        const percent = goalUSD > 0 ? (raisedUSD / goalUSD) * 100 : 0;
-
-        // DOM update
-        const barFill = document.getElementById('progress-bar-fill');
+        // 1. Թարմացնում ենք հավաքված գումարը ($150)
         const raisedText = document.getElementById('raised-amount');
-        const soldText = document.getElementById('sold-tokens');
-        const remainingText = document.getElementById('remaining-tokens');
+        if (raisedText) {
+            raisedText.innerText = `$${data.raised.toLocaleString()}`;
+        }
 
-        if (barFill) barFill.style.width = `${Math.min(percent, 100)}%`;
-        if (raisedText) raisedText.innerText = `$${raisedUSD.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
-        if (soldText) soldText.innerText = `${soldFYX.toLocaleString('en-US')} FYX`;
-        if (remainingText) remainingText.innerText = `${remainingFYX.toLocaleString('en-US')} FYX`;
+        // 2. Թարմացնում ենք Progress Bar-ի կապույտ մասը
+        const barFill = document.getElementById('progress-bar-fill');
+        if (barFill) {
+            const percent = (data.raised / data.goal) * 100;
+            barFill.style.width = `${Math.min(percent, 100)}%`;
+        }
 
-        console.log(`✅ Progress թարմացվել է՝ $${raisedUSD}, ${soldFYX} FYX (${percent.toFixed(1)}%)`);
+        // 3. Թարմացնում ենք մնացած թվերը
+        if (document.getElementById('sold-tokens')) {
+            document.getElementById('sold-tokens').innerText = `${data.sold.toLocaleString()} FYX`;
+        }
+        if (document.getElementById('remaining-tokens')) {
+            document.getElementById('remaining-tokens').innerText = `${data.remaining.toLocaleString()} FYX`;
+        }
 
     } catch (err) {
-        console.warn("⚠️ Backend կապի խնդիր:", err.message);
+        console.warn("⚠️ Progress-ի թարմացման սխալ:", err.message);
     }
 }
 
-// Թարմացում ամեն 10 վայրկյանը
+// Գործարկում ենք ֆունկցիան
+refreshStats();
+// Թարմացնում ենք ամեն 10 վայրկյանը մեկ
 setInterval(refreshStats, 10000);
-refreshStats(); // Անմիջապես
