@@ -11,180 +11,108 @@
 
     <style>
         :root {
-            --bg: #030712; 
-            --card-bg: rgba(17, 24, 39, 0.7);
-            --primary: #6366f1; 
-            --primary-glow: rgba(99, 102, 241, 0.4);
-            --secondary: #a855f7; 
-            --accent: #10b981;
-            --text: #f9fafb; 
-            --text-muted: #94a3b8; 
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --bg: #030712; --card-bg: rgba(17, 24, 39, 0.7);
+            --primary: #6366f1; --primary-glow: rgba(99, 102, 241, 0.4);
+            --secondary: #a855f7; --accent: #10b981;
+            --text: #f9fafb; --text-muted: #94a3b8; --glass-border: rgba(255, 255, 255, 0.1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg); color: var(--text);
-            min-height: 100vh; display: flex; flex-direction: column;
-            align-items: center; padding: 20px;
+            min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px;
             background-image: radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.15) 0%, transparent 35%),
                               radial-gradient(circle at 90% 90%, rgba(168, 85, 247, 0.15) 0%, transparent 35%);
             background-attachment: fixed;
         }
 
-        /* Animations */
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.6); } 70% { box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); } 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); } }
-
-        /* UI Elements */
-        .lang-switcher { width: 100%; max-width: 1100px; display: flex; gap: 10px; margin-bottom: 25px; animation: fadeIn 1s ease; }
-        .lang-btn { background: var(--card-bg); border: 1px solid var(--glass-border); color: white; padding: 8px 16px; border-radius: 12px; cursor: pointer; transition: 0.3s; font-weight: 600; }
-        .lang-btn.active { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
-
-        header { text-align: center; margin-bottom: 40px; animation: slideUp 0.7s ease; }
-        header h1 { font-size: clamp(2.5rem, 8vw, 4rem); font-weight: 800; background: linear-gradient(135deg, #fff 20%, var(--primary) 60%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        header p { color: var(--text-muted); margin-top: 10px; font-size: 1.1rem; }
-
-        /* Stats Card Fixed */
+        /* Stats Card & Layout */
         .stats-card {
             background: var(--card-bg); backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
             border-radius: 30px; padding: 35px; width: 100%; max-width: 800px; margin-bottom: 40px;
-            animation: slideUp 0.8s ease; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
-        .stats-header { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
-        .stats-header h2 { font-size: clamp(2rem, 5vw, 3rem); color: var(--accent); line-height: 1; }
-        
-        .progress-container { width: 100%; background: rgba(255, 255, 255, 0.05); height: 14px; border-radius: 50px; margin: 15px 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+        .progress-container { width: 100%; background: rgba(255,255,255,0.05); height: 14px; border-radius: 50px; margin: 15px 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
         .progress-fill { height: 100%; width: 28%; background: linear-gradient(90deg, var(--primary), var(--secondary)); box-shadow: 0 0 20px var(--primary-glow); }
-        
-        .stats-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px; color: var(--text-muted); font-size: 0.95rem; }
-        .stats-footer strong { color: var(--text); }
 
-        #connectBtn { 
-            background: #fff; color: #000; padding: 18px 50px; border-radius: 100px; border: none; 
-            font-weight: 800; cursor: pointer; margin-bottom: 50px; transition: 0.4s; font-size: 1.1rem;
-            box-shadow: 0 10px 20px rgba(255,255,255,0.1);
-        }
-        #connectBtn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 15px 30px rgba(255,255,255,0.2); }
+        #connectBtn { background: #fff; color: #000; padding: 18px 50px; border-radius: 100px; border: none; font-weight: 800; cursor: pointer; margin-bottom: 50px; transition: 0.4s; font-size: 1.1rem; }
 
-        /* Cards Grid */
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; width: 100%; max-width: 1100px; margin-bottom: 50px; }
-        .package-card { 
-            background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 28px; 
-            padding: 40px; text-align: center; transition: 0.4s; backdrop-filter: blur(15px);
+        /* Wallet Modal UI */
+        #wallet-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .modal-content { background: #0f172a; padding: 30px; border-radius: 32px; border: 1px solid var(--glass-border); width: 90%; max-width: 400px; }
+        .wallet-option { 
+            display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.03); 
+            padding: 15px; border-radius: 18px; margin-top: 10px; cursor: pointer; border: 1px solid var(--glass-border); 
+            color: white; width: 100%; font-size: 1.1rem; font-weight: 700; transition: 0.2s;
         }
-        .package-card:hover { transform: translateY(-12px); border-color: var(--primary); background: rgba(17, 24, 39, 0.9); }
-        .token-amount { font-size: 2.8rem; font-weight: 800; margin-bottom: 5px; }
-        .price-tag { color: var(--accent); font-size: 1.3rem; font-weight: 700; margin-bottom: 25px; }
-        .action-btn { 
-            width: 100%; padding: 15px; border-radius: 16px; border: 1px solid var(--primary); 
-            background: rgba(99, 102, 241, 0.1); color: white; font-weight: 700; cursor: pointer; transition: 0.3s;
-        }
-        .action-btn:hover:not(:disabled) { background: var(--primary); box-shadow: 0 0 20px var(--primary-glow); }
-
-        /* Wallet Modal */
-        #wallet-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
-        .modal-content { background: #0f172a; padding: 40px; border-radius: 32px; border: 1px solid var(--glass-border); width: 90%; max-width: 420px; animation: slideUp 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
-        .wallet-option { display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.03); padding: 18px; border-radius: 18px; margin-top: 12px; cursor: pointer; border: 1px solid var(--glass-border); color: white; width: 100%; font-size: 1.1rem; font-weight: 700; transition: 0.3s; }
         .wallet-option:hover { background: rgba(255,255,255,0.08); border-color: var(--primary); transform: translateX(5px); }
-        .wallet-option img { width: 32px; height: 32px; }
+        .wallet-option img { width: 32px; height: 32px; border-radius: 8px; }
 
-        /* Chat AI UI */
+        /* Chat UI */
         #chat-container { position: fixed; bottom: 30px; right: 30px; z-index: 9999; }
-        #chat-trigger { width: 75px; height: 75px; border-radius: 50%; border: 3px solid var(--primary); background: url('ai-avatar.jpeg') center/cover; cursor: pointer; animation: pulse-glow 2s infinite; }
-        #chat-window { 
-            width: 360px; height: 520px; background: #0f172a; border-radius: 28px; border: 1px solid var(--glass-border); 
-            display: none; flex-direction: column; overflow: hidden; margin-bottom: 15px; box-shadow: 0 25px 60px rgba(0,0,0,0.8);
-            animation: slideUp 0.4s ease;
-        }
-        #chat-header { background: var(--primary); padding: 20px; display: flex; justify-content: space-between; font-weight: 800; font-size: 1rem; }
+        #chat-trigger { width: 75px; height: 75px; border-radius: 50%; border: 3px solid var(--primary); background: url('ai-avatar.jpeg') center/cover; cursor: pointer; }
+        #chat-window { width: 360px; height: 500px; background: #0f172a; border-radius: 28px; border: 1px solid var(--glass-border); display: none; flex-direction: column; overflow: hidden; margin-bottom: 15px; }
+        #chat-header { background: var(--primary); padding: 20px; display: flex; justify-content: space-between; font-weight: 800; }
         #chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .msg { padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; max-width: 85%; animation: fadeIn 0.4s ease; line-height: 1.5; }
-        .ai-msg { background: rgba(255,255,255,0.07); align-self: flex-start; border-bottom-left-radius: 4px; }
-        .user-msg { background: var(--primary); align-self: flex-end; border-bottom-right-radius: 4px; }
-        .typing { display: flex; gap: 5px; padding: 10px; align-self: flex-start; }
-        .typing span { width: 7px; height: 7px; background: var(--text-muted); border-radius: 50%; animation: fadeIn 0.6s infinite alternate; }
+        .msg { padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; max-width: 85%; line-height: 1.5; }
+        .ai-msg { background: rgba(255,255,255,0.07); align-self: flex-start; }
+        .user-msg { background: var(--primary); align-self: flex-end; }
         #chat-input-area { padding: 18px; background: rgba(0,0,0,0.3); display: flex; gap: 10px; border-top: 1px solid var(--glass-border); }
-        #chat-input-area input { flex: 1; background: transparent; border: none; color: #fff; outline: none; font-size: 1rem; }
+        #chat-input-area input { flex: 1; background: transparent; border: none; color: #fff; outline: none; }
     </style>
 </head>
 <body>
 
     <div id="wallet-modal" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 style="margin-bottom: 25px; text-align: center;">Connect Wallet</h2>
+            <h2 style="margin-bottom: 20px; text-align: center;">Ընտրեք դրամապանակը</h2>
+            
             <button class="wallet-option" onclick="selectWallet('phantom')">
-                <img src="https://cryptologos.cc/logos/phantom-phantom-logo.png" alt=""> Phantom
+                <img src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png" style="background:#ab9ff2; padding:4px;" alt=""> Phantom
             </button>
+
             <button class="wallet-option" onclick="selectWallet('solflare')">
-                <img src="https://raw.githubusercontent.com/solflare-wallet/media/master/logo-icon.png" alt=""> Solflare
+                <img src="https://raw.githubusercontent.com/solana-labs/explorer/master/public/static/images/wallet-icons/solflare.svg" alt=""> Solflare
             </button>
+
+            <button class="wallet-option" onclick="selectWallet('coinbase')">
+                <img src="https://raw.githubusercontent.com/solana-labs/explorer/master/public/static/images/wallet-icons/coinbase.svg" alt=""> Coinbase Wallet
+            </button>
+
+            <button class="wallet-option" onclick="selectWallet('okx')">
+                <img src="https://www.okx.com/cdn/assets/imgs/221/9E4C23694038865C.png" alt=""> OKX Wallet
+            </button>
+
             <button class="wallet-option" onclick="selectWallet('backpack')">
                 <img src="https://www.backpack.app/favicon.ico" alt=""> Backpack
             </button>
-            <button style="width:100%; margin-top:20px; background:none; border:none; color:var(--text-muted); cursor:pointer;" onclick="closeModal()">Cancel</button>
-        </div>
-    </div>
 
-    <div class="lang-switcher">
-        <button class="lang-btn active" onclick="setLanguage('hy', event)">AM</button>
-        <button class="lang-btn" onclick="setLanguage('en', event)">EN</button>
-        <button class="lang-btn" onclick="setLanguage('ru', event)">RU</button>
+            <button style="width:100%; margin-top:15px; background:none; border:none; color:var(--text-muted); cursor:pointer;" onclick="closeModal()">Չեղարկել</button>
+        </div>
     </div>
 
     <header>
         <h1>FYX Launchpad</h1>
-        <p id="t-subtitle">Մասնակցեք ապագայի ամենաթեժ պրեսեյլին։</p>
+        <p>Ապագայի ամենաթեժ պրեսեյլը</p>
     </header>
 
     <section class="stats-card">
-        <div class="stats-header">
-            <div>
-                <span id="t-raised-lbl" style="color: var(--text-muted); font-size: 0.9rem;">Հավաքված միջոցներ</span>
-                <h2 id="raised-amount">$25,285</h2>
-            </div>
-            <span id="t-goal-lbl" style="font-weight: 600; opacity: 0.8;">նպատակը՝ $900,000</span>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+            <div><span style="color:var(--text-muted)">Հավաքված</span><h2 style="color:var(--accent); font-size:2.5rem;">$25,285</h2></div>
+            <span>նպատակը՝ $900,000</span>
         </div>
         <div class="progress-container"><div class="progress-fill"></div></div>
-        <div class="stats-footer">
-            <p><span id="t-sold-lbl">Վաճառված</span>: <strong>50,000 FYX</strong></p>
-            <p><span id="t-rem-lbl">Մնացել է</span>: <strong>1,500,000 FYX</strong></p>
-        </div>
     </section>
 
     <button id="connectBtn" onclick="openModal()">Connect Wallet</button>
 
-    <main class="cards-grid">
-        <div class="package-card">
-            <h3 id="t-p1">Starter</h3>
-            <div class="token-amount">1,000</div>
-            <div class="price-tag">9.00 USDT</div>
-            <button class="action-btn buy-btn t-buy-btn" disabled>Գնել USDT-ով</button>
-        </div>
-        <div class="package-card" style="border-color: var(--primary); transform: scale(1.05);">
-            <div style="position:absolute; top:15px; right:15px; background:var(--primary); font-size:0.7rem; padding:4px 10px; border-radius:20px;">POPULAR</div>
-            <h3 id="t-p2">Pro Plan</h3>
-            <div class="token-amount">5,000</div>
-            <div class="price-tag">45.00 USDT</div>
-            <button class="action-btn buy-btn t-buy-btn" disabled>Գնել USDT-ով</button>
-        </div>
-        <div class="package-card">
-            <h3 id="t-p3">Whale</h3>
-            <div class="token-amount">10,000</div>
-            <div class="price-tag">90.00 USDT</div>
-            <button class="action-btn buy-btn t-buy-btn" disabled>Գնել USDT-ով</button>
-        </div>
-    </main>
-
     <div id="chat-container">
         <div id="chat-window">
             <div id="chat-header"><span>FYX AI Assistant</span> <button onclick="toggleChat()" style="background:none; border:none; color:#fff; cursor:pointer;">✕</button></div>
-            <div id="chat-messages"><div class="msg ai-msg" id="t-chat-welcome">Ողջույն! Ես Fynexa-ի խելացի օգնականն եմ:</div></div>
+            <div id="chat-messages"><div class="msg ai-msg">Ողջույն! Ես Fynexa-ի խելացի օգնականն եմ:</div></div>
             <div id="chat-input-area">
-                <input type="text" id="user-input" placeholder="Հարցրեք ինչ-որ բան..." onkeypress="if(event.key==='Enter') sendAiMessage()">
+                <input type="text" id="user-input" placeholder="Գրեք հարցը..." onkeypress="if(event.key==='Enter') sendAiMessage()">
                 <button onclick="sendAiMessage()" style="background:none; border:none; color:var(--primary); font-size:1.5rem; cursor:pointer;">➤</button>
             </div>
         </div>
@@ -192,47 +120,26 @@
     </div>
 
     <script>
-        // Ignore extension errors
-        window.addEventListener('error', e => { if (e.message.includes('ethereum')) e.stopImmediatePropagation(); }, true);
-
-        const translations = {
-            hy: { subtitle: "Մասնակցեք ապագայի ամենաթեժ պրեսեյլին։", raised: "Հավաքված միջոցներ", goal: "նպատակը՝ $900,000", sold: "Վաճառված", rem: "Մնացել է", buy: "Գնել USDT-ով", welcome: "Ողջույն! Ես Fynexa-ի խելացի օգնականն եմ:", resp: "Մշակում եմ Ձեր հարցումը...", p1: "Starter", p2: "Pro Plan", p3: "Whale" },
-            en: { subtitle: "Participate in the hottest presale of the future.", raised: "Funds Raised", goal: "Goal: $900,000", sold: "Sold", rem: "Remaining", buy: "Buy with USDT", welcome: "Hello! I am Fynexa's smart assistant.", resp: "Processing your request...", p1: "Starter", p2: "Pro Plan", p3: "Whale" },
-            ru: { subtitle: "Участвуйте в самом горячем пресейле будущего.", raised: "Собрано средств", goal: "Цель: $900,000", sold: "Продано", rem: "Осталось", buy: "Купить за USDT", welcome: "Привет! Я умный помощник Fynexa.", resp: "Обрабатываю запрос...", p1: "Стартовый", p2: "Про План", p3: "Кит" }
-        };
-
-        let currentLang = 'hy';
-        let wallet = null;
-
-        function setLanguage(lang, event) {
-            currentLang = lang;
-            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById('t-subtitle').innerText = translations[lang].subtitle;
-            document.getElementById('t-raised-lbl').innerText = translations[lang].raised;
-            document.getElementById('t-goal-lbl').innerText = translations[lang].goal;
-            document.getElementById('t-sold-lbl').innerText = translations[lang].sold;
-            document.getElementById('t-rem-lbl').innerText = translations[lang].rem;
-            document.getElementById('t-p1').innerText = translations[lang].p1;
-            document.getElementById('t-p2').innerText = translations[lang].p2;
-            document.getElementById('t-p3').innerText = translations[lang].p3;
-            document.querySelectorAll('.t-buy-btn').forEach(b => b.innerText = translations[lang].buy);
-            document.getElementById('t-chat-welcome').innerText = translations[lang].welcome;
-        }
-
         function openModal() { document.getElementById('wallet-modal').style.display = 'flex'; }
         function closeModal() { document.getElementById('wallet-modal').style.display = 'none'; }
 
         async function selectWallet(choice) {
             closeModal();
-            let provider = (choice==='phantom') ? window.solana : (choice==='solflare' ? window.solflare : window.backpack);
+            let provider;
+            if (choice === 'phantom') provider = window.solana;
+            else if (choice === 'solflare') provider = window.solflare;
+            else if (choice === 'backpack') provider = window.backpack;
+            else if (choice === 'okx') provider = window.okxwallet?.solana;
+            else if (choice === 'coinbase') provider = window.coinbaseWalletExtension?.solana;
+
             if (provider) {
-                const resp = await provider.connect();
-                wallet = resp.publicKey.toString();
-                document.getElementById('connectBtn').innerText = wallet.slice(0,4)+"..."+wallet.slice(-4);
-                document.getElementById('connectBtn').style.background = "#10b981";
-                document.querySelectorAll('.buy-btn').forEach(b => b.disabled = false);
-            } else { alert("Please install " + choice); }
+                try {
+                    const resp = await provider.connect();
+                    const addr = resp.publicKey.toString();
+                    document.getElementById('connectBtn').innerText = addr.slice(0,4)+"..."+addr.slice(-4);
+                    document.getElementById('connectBtn').style.background = "#10b981";
+                } catch (e) { console.error(e); }
+            } else { alert("Խնդրում ենք տեղադրել " + choice + " դրամապանակը:"); }
         }
 
         function toggleChat() {
@@ -244,21 +151,13 @@
             const input = document.getElementById('user-input');
             const chat = document.getElementById('chat-messages');
             if(!input.value.trim()) return;
-
             chat.innerHTML += `<div class="msg user-msg">${input.value}</div>`;
             input.value = "";
             chat.scrollTop = chat.scrollHeight;
-
-            const typing = document.createElement('div');
-            typing.className = 'typing';
-            typing.innerHTML = '<span></span><span></span><span></span>';
-            chat.appendChild(typing);
-
             setTimeout(() => {
-                typing.remove();
-                chat.innerHTML += `<div class="msg ai-msg">${translations[currentLang].resp}</div>`;
+                chat.innerHTML += `<div class="msg ai-msg">Մշակում եմ Ձեր հարցումը...</div>`;
                 chat.scrollTop = chat.scrollHeight;
-            }, 800);
+            }, 600);
         }
     </script>
 </body>
