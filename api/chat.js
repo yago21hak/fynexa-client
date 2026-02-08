@@ -4,40 +4,29 @@ export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
   const { message } = req.body;
 
-  // Փորձում ենք օգտագործել այս հասցեն, որը սովորաբար ավելի հուսալի է
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  // Օգտագործում ենք Gemini 2.5 Flash, որը քո բանալու համար հասանելի է
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
   try {
     const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{
-          parts: [{ text: message }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 1024,
-        }
+        contents: [{ parts: [{ text: message }] }]
       })
     });
 
     const data = await response.json();
 
     if (data.error) {
-      console.error('Google API Error:', data.error);
-      return res.status(200).json({ text: `AI-ն ժամանակավորապես անհասանելի է: (${data.error.message})` });
+      return res.status(200).json({ text: `AI-ն միացված չէ: ${data.error.message}` });
     }
 
     if (data.candidates && data.candidates[0].content) {
       return res.status(200).json({ text: data.candidates[0].content.parts[0].text });
     }
 
-    return res.status(200).json({ text: "AI-ն պատասխան չունի:" });
+    return res.status(200).json({ text: "Պատասխան չկա:" });
   } catch (error) {
     return res.status(200).json({ text: "Սխալ: " + error.message });
   }
