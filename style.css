@@ -1,178 +1,55 @@
-:root {
-    --bg: #030712;
-    --card-bg: rgba(17, 24, 39, 0.7);
-    --primary: #6366f1;
-    --secondary: #a855f7;
-    --accent: #10b981;
-    --text: #f9fafb;
-    --text-muted: #94a3b8;
-    --glass-border: rgba(255, 255, 255, 0.08);
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background-color: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    background-image: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15), transparent 50%);
-}
-
-/* Language Switcher */
-.lang-switcher {
-    width: 100%;
-    max-width: 1100px;
-    display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
-}
-
-.lang-btn {
-    background: var(--card-bg);
-    border: 1px solid var(--glass-border);
-    color: white;
-    padding: 8px 15px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 0.8rem;
-}
-.lang-btn.active { background: var(--primary); border-color: var(--primary); }
-
-header { text-align: center; margin: 40px 0; }
-header h1 { font-size: clamp(2.5rem, 8vw, 4rem); font-weight: 800; }
-
-/* Stats Card - Responsive Fix */
-.stats-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    border-radius: 28px;
-    padding: 30px;
-    width: 100%;
-    max-width: 700px;
-    margin-bottom: 30px;
-}
-
-.stats-header {
-    display: flex;
-    flex-wrap: wrap; /* Թույլ է տալիս տեքստին տեղափոխվել հաջորդ տող */
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 10px;
-}
-
-#raised-amount { font-size: clamp(2rem, 6vw, 3rem); font-weight: 800; color: var(--accent); }
-
-.progress-container {
-    width: 100%;
-    background: rgba(255,255,255,0.05);
-    height: 14px;
+/* Վերադարձնում ենք չաթի անիմացիան և դիզայնը */
+#chat-window {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 350px;
+    height: 500px;
+    background: #111827 !important; /* Մութ գույնը */
+    border: 1px solid rgba(255,255,255,0.1);
     border-radius: 20px;
-    margin: 20px 0;
+    display: none; /* Toggle-ով կբացվի */
+    flex-direction: column;
+    z-index: 9999;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     overflow: hidden;
 }
-.progress-fill {
-    height: 100%; width: 0%;
-    background: linear-gradient(90deg, var(--primary), var(--secondary));
-    transition: width 2s ease;
-}
 
-.info-row {
+/* Loading անիմացիան */
+.typing-loader {
     display: flex;
-    justify-content: space-between;
-    font-size: 0.9rem;
-    color: var(--text-muted);
+    gap: 4px;
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    width: fit-content;
 }
 
-/* Connect Wallet Button */
-#connectBtn {
-    background: white; color: black;
-    padding: 16px 40px; border-radius: 50px;
-    border: none; font-weight: 700; cursor: pointer;
-    margin-bottom: 40px; width: 100%; max-width: 300px;
+.typing-loader span {
+    width: 6px;
+    height: 6px;
+    background: #94a3b8;
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out;
 }
 
-/* Grid for Packages */
-.cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    width: 100%;
-    max-width: 1100px;
+@keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
 }
 
-.package-card {
-    background: var(--card-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 24px;
-    padding: 30px;
-    text-align: center;
-}
-
-/* --- AI Chat - Fixed Design --- */
-#chat-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
-
-#chat-window {
-    width: 350px;
-    height: 450px;
-    background: #0f172a;
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    display: none;
-    flex-direction: column;
-    margin-bottom: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-
-#chat-header {
-    padding: 15px;
-    background: var(--primary);
-    border-radius: 20px 20px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-#chat-messages {
-    flex: 1;
-    padding: 15px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.msg { padding: 10px; border-radius: 12px; max-width: 80%; font-size: 0.9rem; }
-.ai-msg { background: rgba(255,255,255,0.1); align-self: flex-start; }
-.user-msg { background: var(--primary); align-self: flex-end; }
-
-#chat-input-area {
-    padding: 15px;
-    display: flex;
-    gap: 10px;
-    border-top: 1px solid var(--glass-border);
-}
-
-#chat-input-area input {
-    flex: 1;
-    background: #1e293b;
-    border: 1px solid var(--glass-border);
-    padding: 8px;
-    border-radius: 8px;
-    color: white;
-    outline: none;
-}
-
-/* Mobile Adjustments */
-@media (max-width: 480px) {
+/* Մոբայլի ուղղում (image_d2b5d7.jpg-ի խնդիրը) */
+@media (max-width: 600px) {
+    .stats-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    #raised-amount {
+        font-size: 2rem;
+    }
     #chat-window {
         width: calc(100vw - 40px);
-        height: 60vh;
+        height: 70vh;
     }
-    .info-row { flex-direction: column; align-items: center; gap: 5px; }
 }
