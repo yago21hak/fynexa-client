@@ -8,22 +8,8 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-<script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
 
-<script src="wallet-logic.js"></script>
-<script src="usdc-logic.js"></script>
-    <script>
-    function showToast(msg) {
-        const toast = document.getElementById('toast');
-        if (toast) {
-            toast.innerText = msg;
-            toast.style.display = 'block';
-            setTimeout(() => toast.style.display = 'none', 5000);
-        } else {
-            alert(msg);
-        }
-    }
-</script>
     <style>
         :root {
             --bg: #030712; --card-bg: rgba(17, 24, 39, 0.4);
@@ -81,6 +67,32 @@
         .action-btn:hover:not(:disabled) { background: white; color: black; }
         .action-btn:disabled { opacity: 0.2; cursor: not-allowed; }
         #toast { position: fixed; bottom: 30px; right: 30px; background: #1f2937; padding: 16px 24px; border-radius: 16px; display: none; z-index: 1000; color: white; border: 1px solid var(--primary); }
+
+        /* --- AI CHAT STYLES --- */
+        #chat-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; }
+        #chat-trigger { 
+            width: 60px; height: 60px; border-radius: 50%; background: var(--primary); 
+            color: white; border: none; cursor: pointer; font-size: 24px; 
+            box-shadow: 0 4px 20px var(--primary-glow); transition: 0.3s;
+        }
+        #chat-trigger:hover { transform: scale(1.1); }
+        #chat-window { 
+            width: 350px; height: 500px; background: #111827; border-radius: 24px; 
+            border: 1px solid var(--glass-border); box-shadow: 0 8px 32px rgba(0,0,0,0.4); 
+            display: none; flex-direction: column; overflow: hidden; margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+        }
+        #chat-header { background: var(--primary); padding: 15px 20px; display: flex; justify-content: space-between; font-weight: 700; }
+        #chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .msg { padding: 10px 15px; border-radius: 15px; font-size: 0.9rem; max-width: 85%; line-height: 1.4; }
+        .user-msg { background: var(--primary); align-self: flex-end; border-bottom-right-radius: 4px; }
+        .ai-msg { background: rgba(255,255,255,0.1); align-self: flex-start; border-bottom-left-radius: 4px; }
+        #chat-input-area { padding: 15px; background: rgba(0,0,0,0.2); display: flex; gap: 10px; }
+        #chat-input-area input { 
+            flex: 1; background: transparent; border: 1px solid var(--glass-border); 
+            padding: 10px; border-radius: 12px; color: white; outline: none;
+        }
+        #chat-input-area button { background: var(--primary); border: none; padding: 10px 15px; border-radius: 12px; color: white; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -132,33 +144,67 @@
         </div>
     </main>
 
+    <div id="chat-container">
+        <div id="chat-window">
+            <div id="chat-header">
+                <span>FYX AI Assistant</span>
+                <button onclick="toggleChat()" style="background:none; border:none; color:white; cursor:pointer;">✕</button>
+            </div>
+            <div id="chat-messages">
+                <div class="msg ai-msg">Ողջույն! Ես Fynexa-ի խելացի օգնականն եմ: Ինչպե՞ս կարող եմ օգնել Ձեզ:</div>
+            </div>
+            <div id="chat-input-area">
+                <input type="text" id="user-input" placeholder="Հարցրեք ինչ-որ բան..." onkeypress="if(event.key==='Enter') sendAiMessage()">
+                <button onclick="sendAiMessage()">➤</button>
+            </div>
+        </div>
+        <button id="chat-trigger" onclick="toggleChat()">🤖</button>
+    </div>
+
     <div id="toast"></div>
 
-    <!-- Առանձին JS ֆայլեր — միայն մեկ անգամ -->
     <script type="module" src="wallet-logic.js"></script>
     <script type="module" src="usdc-logic.js"></script>
     <script type="module" src="progress-sync.js"></script>
 
-    <!-- Կոճակների event listener (data-attribute-ներով) -->
-    <script type="module">
-        // Սպասում ենք, մինչև usdc-logic.js-ը բեռնվի և initiateUSDCBuy ֆունկցիան հասանելի դառնա
-        document.addEventListener('DOMContentLoaded', () => {
-            const buttons = document.querySelectorAll('.usdc-button');
-            buttons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    if (btn.disabled) return;
+    <script>
+        // AI Chat Toggle
+        function toggleChat() {
+            const win = document.getElementById('chat-window');
+            win.style.display = win.style.display === 'flex' ? 'none' : 'flex';
+        }
 
-                    const usdAmount = parseFloat(btn.dataset.amount);
-                    const tokenQty = parseInt(btn.dataset.tokens);
+        async function sendAiMessage() {
+            const input = document.getElementById('user-input');
+            const container = document.getElementById('chat-messages');
+            const text = input.value.trim();
+            if(!text) return;
 
-                    if (window.initiateUSDCBuy) {
-                        window.initiateUSDCBuy(usdAmount, tokenQty);
-                    } else {
-                        showToast("USDC գնման համակարգը դեռ բեռնվում է...");
-                    }
+            // User message
+            const uDiv = document.createElement('div');
+            uDiv.className = 'msg user-msg';
+            uDiv.innerText = text;
+            container.appendChild(uDiv);
+            input.value = '';
+            container.scrollTop = container.scrollHeight;
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ message: text })
                 });
-            });
-        });
+                const data = await res.json();
+                
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'msg ai-msg';
+                aiDiv.innerText = data.text || "Կներեք, չկարողացա պատասխանել:";
+                container.appendChild(aiDiv);
+                container.scrollTop = container.scrollHeight;
+            } catch(e) {
+                console.error("Chat error:", e);
+            }
+        }
     </script>
 </body>
 </html>
