@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FYX Launchpad | Official Premium</title>
+    <title>FYX Launchpad - Premium Presale</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
@@ -11,7 +11,7 @@
     <style>
         :root {
             --bg: #030712; 
-            --card-bg: rgba(17, 24, 39, 0.8);
+            --card-bg: rgba(17, 24, 39, 0.7);
             --primary: #6366f1; 
             --primary-glow: rgba(99, 102, 241, 0.4);
             --secondary: #a855f7; 
@@ -22,73 +22,115 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg); color: var(--text);
-            min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px;
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; padding: 20px;
             background-image: radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.15) 0%, transparent 35%),
                               radial-gradient(circle at 90% 90%, rgba(168, 85, 247, 0.15) 0%, transparent 35%);
             background-attachment: fixed;
         }
 
-        /* Layout elements */
+        /* Animations */
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.6); } 70% { box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); } 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); } }
+
+        /* UI Elements */
         .lang-switcher { width: 100%; max-width: 1100px; display: flex; gap: 10px; margin-bottom: 25px; }
         .lang-btn { background: var(--card-bg); border: 1px solid var(--glass-border); color: white; padding: 8px 16px; border-radius: 12px; cursor: pointer; font-weight: 600; }
-        .lang-btn.active { background: var(--primary); box-shadow: 0 0 10px var(--primary-glow); }
+        .lang-btn.active { background: var(--primary); border-color: var(--primary); }
 
-        header { text-align: center; margin-bottom: 40px; }
+        header { text-align: center; margin-bottom: 40px; animation: slideUp 0.7s ease; }
         header h1 { font-size: clamp(2.5rem, 8vw, 4rem); font-weight: 800; background: linear-gradient(135deg, #fff 20%, var(--primary) 60%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
-        /* Stats Card & Fixed Progress Bar */
+        
+        /* Stats Card */
         .stats-card {
             background: var(--card-bg); backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
             border-radius: 30px; padding: 35px; width: 100%; max-width: 800px; margin-bottom: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            animation: slideUp 0.8s ease;
         }
-        .progress-container { width: 100%; background: rgba(255, 255, 255, 0.05); height: 16px; border-radius: 50px; margin: 20px 0; overflow: hidden; border: 1px solid var(--glass-border); position: relative; }
-        .progress-fill { height: 100%; width: 28%; background: linear-gradient(90deg, var(--primary), var(--secondary)); box-shadow: 0 0 20px var(--primary-glow); border-radius: 50px; transition: 1s ease-in-out; }
+        .progress-container { width: 100%; background: rgba(255, 255, 255, 0.05); height: 14px; border-radius: 50px; margin: 15px 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+        .progress-fill { height: 100%; width: 28%; background: linear-gradient(90deg, var(--primary), var(--secondary)); box-shadow: 0 0 20px var(--primary-glow); }
 
-        #connectBtn { background: #fff; color: #000; padding: 18px 50px; border-radius: 100px; border: none; font-weight: 800; cursor: pointer; margin-bottom: 50px; transition: 0.4s; font-size: 1.1rem; }
-        #connectBtn:hover { transform: scale(1.03); box-shadow: 0 0 20px rgba(255,255,255,0.2); }
-
-        /* Wallet Modal Icons - Guaranteed to show */
-        #wallet-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(12px); }
-        .modal-content { background: #0f172a; padding: 35px; border-radius: 32px; border: 1px solid var(--glass-border); width: 95%; max-width: 400px; }
-        .wallet-option { display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.03); padding: 16px; border-radius: 20px; margin-top: 12px; cursor: pointer; border: 1px solid var(--glass-border); color: white; width: 100%; font-size: 1.1rem; font-weight: 700; transition: 0.3s; }
-        .wallet-option:hover { background: rgba(255,255,255,0.08); border-color: var(--primary); }
-        .wallet-option img { width: 32px; height: 32px; }
+        #connectBtn { 
+            background: #fff; color: #000; padding: 18px 50px; border-radius: 100px; border: none; 
+            font-weight: 800; cursor: pointer; margin-bottom: 50px; transition: 0.4s; font-size: 1.1rem;
+        }
 
         /* Cards Grid */
         .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; width: 100%; max-width: 1100px; margin-bottom: 50px; }
-        .package-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 28px; padding: 40px; text-align: center; transition: 0.4s; backdrop-filter: blur(15px); position: relative; }
-        .buy-btn { width: 100%; padding: 15px; border-radius: 16px; border: 1px solid var(--primary); background: rgba(99, 102, 241, 0.1); color: white; font-weight: 700; cursor: pointer; margin-top: 20px; }
-        .buy-btn:hover:not(:disabled) { background: var(--primary); }
-
-        /* FIXED CHAT WITH FOX AVATAR */
-        #chat-container { position: fixed; bottom: 30px; right: 30px; z-index: 9999; display: flex; flex-direction: column; align-items: flex-end; }
-        #chat-window { width: 360px; height: 500px; background: #0f172a; border-radius: 28px; border: 1px solid var(--glass-border); display: none; flex-direction: column; overflow: hidden; margin-bottom: 15px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        #chat-header { background: var(--primary); padding: 20px; display: flex; justify-content: space-between; font-weight: 800; color: white; }
-        #chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: rgba(0,0,0,0.2); }
-        .msg { padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; max-width: 85%; line-height: 1.4; }
-        .ai-msg { background: rgba(255,255,255,0.08); align-self: flex-start; border-bottom-left-radius: 2px; }
-        .user-msg { background: var(--primary); align-self: flex-end; border-bottom-right-radius: 2px; }
-        .chat-input-area { padding: 15px; background: #1e293b; display: flex; gap: 10px; border-top: 1px solid var(--glass-border); }
-        .chat-input-area input { flex: 1; background: transparent; border: none; color: white; outline: none; }
-        
-        /* THE FOX TRIGGER - FIXED IMAGE */
-        #chat-trigger { 
-            width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--primary); 
-            background: url('https://i.ibb.co/Y7YmS6Z/fox-avatar.png') center/cover no-repeat #0f172a; 
-            cursor: pointer; box-shadow: 0 10px 30px var(--primary-glow); transition: 0.3s;
+        .package-card { 
+            background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 28px; 
+            padding: 40px; text-align: center; transition: 0.4s; backdrop-filter: blur(15px); position: relative;
         }
-        #chat-trigger:hover { transform: scale(1.1); }
+        .package-card:hover { transform: translateY(-12px); border-color: var(--primary); }
+        .buy-btn { width: 100%; padding: 15px; border-radius: 16px; border: 1px solid var(--primary); background: rgba(99, 102, 241, 0.1); color: white; font-weight: 700; cursor: pointer; }
+
+        /* Wallet Modal */
+        #wallet-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(12px); }
+        .modal-content { background: #0f172a; padding: 35px; border-radius: 32px; border: 1px solid var(--glass-border); width: 90%; max-width: 400px; animation: slideUp 0.4s ease; }
+        .wallet-option { 
+            display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.03); 
+            padding: 15px; border-radius: 18px; margin-top: 12px; cursor: pointer; border: 1px solid var(--glass-border); 
+            color: white; width: 100%; font-size: 1.1rem; font-weight: 700; transition: 0.3s;
+        }
+        .wallet-option:hover { background: rgba(255,255,255,0.08); border-color: var(--primary); transform: translateX(8px); }
+        .wallet-option img { width: 32px; height: 32px; object-fit: contain; }
+
+        /* Chat UI */
+        #chat-container { position: fixed; bottom: 30px; right: 30px; z-index: 9999; }
+        #chat-trigger { width: 75px; height: 75px; border-radius: 50%; border: 3px solid var(--primary); background: url('ai-avatar.jpeg') center/cover; cursor: pointer; animation: pulse-glow 2s infinite; }
+        #chat-window { width: 360px; height: 520px; background: #0f172a; border-radius: 28px; border: 1px solid var(--glass-border); display: none; flex-direction: column; overflow: hidden; margin-bottom: 15px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        #chat-header { background: var(--primary); padding: 20px; display: flex; justify-content: space-between; font-weight: 800; }
+        #chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .msg { padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; max-width: 85%; }
+        .ai-msg { background: rgba(255,255,255,0.07); align-self: flex-start; }
+        .user-msg { background: var(--primary); align-self: flex-end; }
+        #chat-input-area { padding: 18px; background: rgba(0,0,0,0.3); display: flex; gap: 10px; border-top: 1px solid var(--glass-border); }
+        #chat-input-area input { flex: 1; background: transparent; border: none; color: #fff; outline: none; }
     </style>
 </head>
 <body>
 
+    <div id="wallet-modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 style="margin-bottom: 25px; text-align: center; font-weight: 800;">Connect Wallet</h2>
+            
+            <button class="wallet-option" onclick="selectWallet('phantom')">
+                <img src="https://img.icons8.com/color/48/phantom.png" alt="Phantom"> Phantom
+            </button>
+            
+            <button class="wallet-option" onclick="selectWallet('metamask')">
+                <img src="https://img.icons8.com/color/48/metamask-logo.png" alt="MetaMask"> MetaMask
+            </button>
+
+            <button class="wallet-option" onclick="selectWallet('solflare')">
+                <img src="https://raw.githubusercontent.com/solflare-wallet/media/master/logo-icon.png" alt="Solflare"> Solflare
+            </button>
+
+            <button class="wallet-option" onclick="selectWallet('coinbase')">
+                <img src="https://img.icons8.com/color/48/coinbase.png" alt="Coinbase"> Coinbase
+            </button>
+
+            <button class="wallet-option" onclick="selectWallet('okx')">
+                <img src="https://www.okx.com/cdn/assets/imgs/247/796684F661B612C2.png" alt="OKX"> OKX Wallet
+            </button>
+
+            <button class="wallet-option" onclick="selectWallet('backpack')">
+                <img src="https://www.backpack.app/favicon.ico" alt="Backpack"> Backpack
+            </button>
+
+            <button style="width:100%; margin-top:20px; background:none; border:none; color:var(--text-muted); cursor:pointer;" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
     <div class="lang-switcher">
         <button class="lang-btn active" onclick="setLanguage('hy', event)">AM</button>
         <button class="lang-btn" onclick="setLanguage('en', event)">EN</button>
+        <button class="lang-btn" onclick="setLanguage('ru', event)">RU</button>
     </div>
 
     <header>
@@ -97,97 +139,93 @@
     </header>
 
     <section class="stats-card">
-        <div style="display:flex; justify-content:space-between; align-items:flex-end;">
-            <div><span id="t-raised-lbl" style="color:var(--text-muted)">Հավաքված</span><h2 id="raised-amount" style="color:var(--accent); font-size:2.8rem; font-weight:800;">$25,285</h2></div>
-            <span>նպատակը՝ $900,000</span>
+        <div class="stats-header">
+            <div><span id="t-raised-lbl" style="color:var(--text-muted)">Հավաքված</span><h2 id="raised-amount">$25,285</h2></div>
+            <span id="t-goal-lbl">նպատակը՝ $900,000</span>
         </div>
         <div class="progress-container"><div class="progress-fill"></div></div>
-        <div style="display:flex; justify-content:space-between; color:var(--text-muted); font-size:0.9rem;">
-            <span>Վաճառված: 50,000 FYX</span>
-            <span>Մնացել է: 1,500,000 FYX</span>
+        <div class="stats-footer">
+            <p><span id="t-sold-lbl">Վաճառված</span>: 50,000 FYX</p>
+            <p><span id="t-rem-lbl">Մնացել է</span>: 1,500,000 FYX</p>
         </div>
     </section>
 
     <button id="connectBtn" onclick="openModal()">Connect Wallet</button>
 
-    <div id="wallet-modal" onclick="closeModal()">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 style="margin-bottom: 25px; text-align: center;">Connect Wallet</h2>
-            <button class="wallet-option" onclick="selectWallet('phantom')">
-                <img src="https://cryptologos.cc/logos/solana-sol-logo.png" alt=""> Phantom
-            </button>
-            <button class="wallet-option" onclick="selectWallet('metamask')">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt=""> MetaMask
-            </button>
-            <button class="wallet-option" onclick="selectWallet('solflare')">
-                <img src="https://raw.githubusercontent.com/solflare-wallet/media/master/logo-icon.png" alt=""> Solflare
-            </button>
-            <button class="wallet-option" onclick="selectWallet('coinbase')">
-                <img src="https://img.icons8.com/color/48/coinbase.png" alt=""> Coinbase
-            </button>
-            <button class="wallet-option" onclick="selectWallet('okx')">
-                <img src="https://www.okx.com/cdn/assets/imgs/247/796684F661B612C2.png" alt=""> OKX Wallet
-            </button>
-            <button style="width:100%; margin-top:20px; background:none; border:none; color:var(--text-muted); cursor:pointer;" onclick="closeModal()">Cancel</button>
-        </div>
-    </div>
-
     <main class="cards-grid">
-        <div class="package-card"><h3>Starter</h3><div style="font-size:2.8rem; font-weight:800; margin:15px 0;">1,000</div><div style="color:var(--accent); font-weight:700;">9.00 USDT</div><button class="buy-btn" disabled>Գնել</button></div>
-        <div class="package-card" style="border-color:var(--primary); transform:scale(1.05);"><div style="position:absolute; top:10px; right:10px; background:var(--primary); font-size:0.7rem; padding:4px 10px; border-radius:20px;">POPULAR</div><h3>Pro Plan</h3><div style="font-size:2.8rem; font-weight:800; margin:15px 0;">5,000</div><div style="color:var(--accent); font-weight:700;">45.00 USDT</div><button class="buy-btn" disabled>Գնել</button></div>
-        <div class="package-card"><h3>Whale</h3><div style="font-size:2.8rem; font-weight:800; margin:15px 0;">10,000</div><div style="color:var(--accent); font-weight:700;">90.00 USDT</div><button class="buy-btn" disabled>Գնել</button></div>
+        <div class="package-card"><h3>Starter</h3><div style="font-size:2.5rem; font-weight:800;">1,000</div><div style="color:var(--accent); font-weight:700; margin-bottom:20px;">9.00 USDT</div><button class="buy-btn t-buy-btn" disabled>Գնել USDT-ով</button></div>
+        <div class="package-card" style="border-color:var(--primary); transform:scale(1.05);"><div style="position:absolute; top:15px; right:15px; background:var(--primary); font-size:0.7rem; padding:4px 10px; border-radius:20px;">POPULAR</div><h3>Pro Plan</h3><div style="font-size:2.5rem; font-weight:800;">5,000</div><div style="color:var(--accent); font-weight:700; margin-bottom:20px;">45.00 USDT</div><button class="buy-btn t-buy-btn" disabled>Գնել USDT-ով</button></div>
+        <div class="package-card"><h3>Whale</h3><div style="font-size:2.5rem; font-weight:800;">10,000</div><div style="color:var(--accent); font-weight:700; margin-bottom:20px;">90.00 USDT</div><button class="buy-btn t-buy-btn" disabled>Գնել USDT-ով</button></div>
     </main>
 
     <div id="chat-container">
         <div id="chat-window">
             <div id="chat-header"><span>FYX AI Assistant</span> <button onclick="toggleChat()" style="background:none; border:none; color:#fff; cursor:pointer;">✕</button></div>
-            <div id="chat-messages"><div class="msg ai-msg">Ողջույն! Ես Fynexa-ի խելացի օգնականն եմ:</div></div>
-            <div class="chat-input-area">
-                <input type="text" id="chatInput" placeholder="Հարցրեք..." onkeypress="if(event.key==='Enter') sendMsg()">
-                <button onclick="sendMsg()" style="background:none; border:none; color:var(--primary); font-size:1.4rem; cursor:pointer;">➤</button>
-            </div>
+            <div id="chat-messages"><div class="msg ai-msg" id="t-chat-welcome">Ողջույն! Ես Fynexa-ի խելացի օգնականն եմ:</div></div>
+            <div id="chat-input-area"><input type="text" id="user-input" placeholder="Հարցրեք..." onkeypress="if(event.key==='Enter') sendAiMessage()"><button onclick="sendAiMessage()" style="background:none; border:none; color:var(--primary); font-size:1.5rem; cursor:pointer;">➤</button></div>
         </div>
         <button id="chat-trigger" onclick="toggleChat()"></button>
     </div>
 
     <script>
+        const translations = {
+            hy: { subtitle: "Մասնակցեք ապագայի ամենաթեժ պրեսեյլին։", raised: "Հավաքված", buy: "Գնել USDT-ով", welcome: "Ողջույն! Ես Fynexa-ի խելացի օգնականն եմ:", resp: "Մշակում եմ..." },
+            en: { subtitle: "Participate in the hottest presale.", raised: "Raised", buy: "Buy with USDT", welcome: "Hello! I am FYX Assistant.", resp: "Processing..." },
+            ru: { subtitle: "Участвуйте в лучшем пресейле.", raised: "Собрано", buy: "Купить за USDT", welcome: "Привет! Я помощник FYX.", resp: "Обрабатываю..." }
+        };
+
+        let currentLang = 'hy';
+
+        function setLanguage(lang, event) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('t-subtitle').innerText = translations[lang].subtitle;
+            document.getElementById('t-raised-lbl').innerText = translations[lang].raised;
+            document.querySelectorAll('.t-buy-btn').forEach(b => b.innerText = translations[lang].buy);
+            document.getElementById('t-chat-welcome').innerText = translations[lang].welcome;
+        }
+
         function openModal() { document.getElementById('wallet-modal').style.display = 'flex'; }
         function closeModal() { document.getElementById('wallet-modal').style.display = 'none'; }
 
-        async function selectWallet(w) {
+        async function selectWallet(choice) {
             closeModal();
-            let provider;
-            if (w === 'phantom') provider = window.solana;
-            else if (w === 'metamask') provider = window.ethereum;
-            else if (w === 'solflare') provider = window.solflare;
-            else if (w === 'okx') provider = window.okxwallet?.solana;
+            let p;
+            if(choice === 'phantom') p = window.solana;
+            else if(choice === 'solflare') p = window.solflare;
+            else if(choice === 'backpack') p = window.backpack;
+            else if(choice === 'metamask') p = window.ethereum; // MetaMask logic
+            else if(choice === 'okx') p = window.okxwallet?.solana;
+            else if(choice === 'coinbase') p = window.coinbaseWalletExtension?.solana;
 
-            if (provider) {
+            if(p) {
                 try {
-                    const resp = (w === 'metamask') ? await provider.request({ method: 'eth_requestAccounts' }) : await provider.connect();
-                    const addr = (w === 'metamask') ? resp[0] : provider.publicKey.toString();
-                    const btn = document.getElementById('connectBtn');
-                    btn.innerText = addr.slice(0,4)+"..."+addr.slice(-4);
-                    btn.style.background = "#10b981";
-                    btn.style.color = "white";
+                    const r = await p.connect();
+                    const pk = r.publicKey ? r.publicKey.toString() : (r.selectedAddress || "Connected");
+                    document.getElementById('connectBtn').innerText = pk.slice(0,4)+"..."+pk.slice(-4);
+                    document.getElementById('connectBtn').style.background = "#10b981";
                     document.querySelectorAll('.buy-btn').forEach(b => b.disabled = false);
-                } catch (e) { console.error(e); }
-            } else { alert("Տեղադրեք " + w); }
+                } catch(e) { console.log(e); }
+            } else { alert("Please install " + choice); }
         }
 
         function toggleChat() {
-            const win = document.getElementById('chat-window');
-            win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
+            const w = document.getElementById('chat-window');
+            w.style.display = (w.style.display === 'flex') ? 'none' : 'flex';
         }
 
-        function sendMsg() {
-            const inp = document.getElementById('chatInput');
-            const box = document.getElementById('chat-messages');
-            if(!inp.value.trim()) return;
-            box.innerHTML += `<div class="msg user-msg">${inp.value}</div>`;
-            inp.value = "";
-            box.scrollTop = box.scrollHeight;
-            setTimeout(() => { box.innerHTML += `<div class="msg ai-msg">Մշակում եմ...</div>`; box.scrollTop = box.scrollHeight; }, 600);
+        function sendAiMessage() {
+            const i = document.getElementById('user-input');
+            const c = document.getElementById('chat-messages');
+            if(!i.value.trim()) return;
+            c.innerHTML += `<div class="msg user-msg">${i.value}</div>`;
+            i.value = "";
+            c.scrollTop = c.scrollHeight;
+            setTimeout(() => {
+                c.innerHTML += `<div class="msg ai-msg">${translations[currentLang].resp}</div>`;
+                c.scrollTop = c.scrollHeight;
+            }, 600);
         }
     </script>
 </body>
