@@ -201,31 +201,38 @@
         }
 
         function sendAiMessage() {
-            const input = document.getElementById('user-input');
-            const chat = document.getElementById('chat-messages');
-            if(!input.value.trim()) return;
+    const input = document.getElementById('user-input');
+    const chatContainer = document.getElementById('chat-messages');
 
-            // User Message
-            chat.innerHTML += `<div class="msg user-msg">${input.value}</div>`;
-            input.value = "";
-            chat.scrollTop = chat.scrollHeight;
+    // Ստուգում ենք՝ արդյոք ID-ները ճիշտ են
+    if (!input || !chatContainer) {
+        console.error("Սխալ: Չատի տարրերը չեն գտնվել ID-ով:");
+        return;
+    }
 
-            // Typing Indicator
-            const typingId = 'typing-' + Date.now();
-            chat.innerHTML += `<div class="typing" id="${typingId}"><span></span><span></span><span></span></div>`;
-            chat.scrollTop = chat.scrollHeight;
+    const message = input.value.trim();
+    if (!message) return;
 
-            // AI Response after delay
-            setTimeout(() => {
-                document.getElementById(typingId).remove();
-                chat.innerHTML += `<div class="msg ai-msg">${translations[currentLang].chatResponse}</div>`;
-                chat.scrollTop = chat.scrollHeight;
-            }, 1000); 
-        }
+    // Օգտատիրոջ հաղորդագրությունը
+    chatContainer.innerHTML += `<div class="msg user-msg">${message}</div>`;
+    input.value = "";
+    chatContainer.scrollTop = chatContainer.scrollHeight;
 
-        async function handleBuy(amount) {
-            alert("Preparing USDT Transaction for " + amount + " USDT");
-        }
+    // Ավելացնում ենք Typing անիմացիան
+    const typingDots = document.createElement('div');
+    typingDots.className = 'typing';
+    typingDots.innerHTML = '<span></span><span></span><span></span>';
+    chatContainer.appendChild(typingDots);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    // Պատասխանը
+    setTimeout(() => {
+        typingDots.remove(); // Հեռացնում ենք կետիկները
+        const responseText = translations[currentLang].chatResponse || "Processing...";
+        chatContainer.innerHTML += `<div class="msg ai-msg">${responseText}</div>`;
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }, 800);
+}
     </script>
 </body>
 </html>
