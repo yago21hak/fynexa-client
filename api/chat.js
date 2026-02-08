@@ -1,53 +1,38 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ text: "Միայն POST հարցումներն են թույլատրված:" });
-  }
+  if (req.method !== 'POST') return res.status(405).json({ text: "Only POST allowed" });
 
   const apiKey = process.env.GEMINI_API_KEY;
+  const { message } = req.body;
 
-  if (!apiKey) {
-    return res.status(500).json({ text: "Սխալ: GEMINI_API_KEY-ը գտնված չէ Vercel-ի կարգավորումներում:" });
-  }
+  // Ուղիղ հասցե դեպի Google API v1 (ոչ թե v1beta)
+  const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    
-    // ՈՒՂՂՈՒՄ. Մոդելը և safetySettings-ը պետք է լինեն մեկ օբյեկտի մեջ
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-pro",
-      safetySettings: [
-        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-      ]
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: message }] }]
+      })
     });
 
-    const { message } = req.body;
+    const data = await response.json();
 
-    if (!message) {
-      return res.status(400).json({ text: "Հաղորդագրությունը դատարկ է:" });
+    if (data.error) {
+      throw new Error(data.error.message);
     }
 
-    const result = await model.generateContent(message);
-    const response = await result.response;
-    const text = response.text();
-
-    return res.status(200).json({ text: text });
+    const aiResponse = data.candidates[0].content.parts[0].text;
+    return res.status(200).json({ text: aiResponse });
 
   } catch (error) {
-    console.error("Gemini API Error:", error);
-
+    console.error("Direct API Error:", error.message);
+    
+    // Եթե ռեգիոնի սխալ է
     if (error.message.includes("location") || error.message.includes("supported")) {
-      return res.status(200).json({ 
-        text: "Սխալ: Քո Vercel սերվերի տարածաշրջանը չի աջակցվում: Համոզվիր, որ Function Region-ը 'Washington, D.C. (iad1)' է և արել ես Redeploy:" 
-      });
+        return res.status(200).json({ text: "Տարածաշրջանի սխալ: Ստուգիր Vercel Region-ը (պետք է լինի iad1):" });
     }
 
-    return res.status(200).json({ 
-      text: "AI-ն ժամանակավորապես անհասանելի է: " + error.message 
-    });
+    return res.status(200).json({ text: "Սխալ: " + error.message });
   }
 }
