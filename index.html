@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FYX Launchpad - Premium Presale</title>
+    <title>FYX Launchpad | Official Presale</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
@@ -11,103 +11,80 @@
     <style>
         :root {
             --bg: #030712; 
-            --card-bg: rgba(17, 24, 39, 0.7);
+            --card-bg: rgba(17, 24, 39, 0.8);
             --primary: #6366f1; 
-            --primary-glow: rgba(99, 102, 241, 0.4);
+            --primary-glow: rgba(99, 102, 241, 0.5);
             --secondary: #a855f7; 
             --accent: #10b981;
             --text: #f9fafb; 
             --text-muted: #94a3b8; 
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.12);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg); color: var(--text);
-            min-height: 100vh; display: flex; flex-direction: column;
-            align-items: center; padding: 20px;
-            background-image: radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.15) 0%, transparent 35%),
-                              radial-gradient(circle at 90% 90%, rgba(168, 85, 247, 0.15) 0%, transparent 35%);
-            background-attachment: fixed;
+            min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px;
+            background-image: radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.2) 0%, transparent 40%),
+                              radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.2) 0%, transparent 40%);
+            background-attachment: fixed; overflow-x: hidden;
         }
 
-        header { text-align: center; margin-bottom: 40px; animation: slideUp 0.7s ease; }
-        header h1 { font-size: clamp(2.5rem, 8vw, 4rem); font-weight: 800; background: linear-gradient(135deg, #fff 20%, var(--primary) 60%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        /* Hero Section */
+        header { text-align: center; margin: 40px 0; animation: fadeInDown 0.8s ease; }
+        header h1 { font-size: clamp(2.8rem, 8vw, 4.5rem); font-weight: 800; letter-spacing: -2px; background: linear-gradient(to right, #fff, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        /* Stats Card & Progress Bar Fix */
+        /* Stats Card & Progress */
         .stats-card {
-            background: var(--card-bg); backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
-            border-radius: 30px; padding: 35px; width: 100%; max-width: 800px; margin-bottom: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            background: var(--card-bg); backdrop-filter: blur(30px); border: 1px solid var(--glass-border);
+            border-radius: 32px; padding: 40px; width: 100%; max-width: 850px; margin-bottom: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
-        .stats-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
-        .progress-container { width: 100%; background: rgba(255, 255, 255, 0.05); height: 16px; border-radius: 50px; margin: 20px 0; overflow: hidden; position: relative; border: 1px solid var(--glass-border); }
-        .progress-fill { height: 100%; width: 28%; background: linear-gradient(90deg, var(--primary), var(--secondary)); box-shadow: 0 0 15px var(--primary-glow); border-radius: 50px; transition: width 1s ease-in-out; }
+        .progress-container { width: 100%; background: rgba(255, 255, 255, 0.05); height: 18px; border-radius: 50px; margin: 25px 0; border: 1px solid var(--glass-border); position: relative; }
+        .progress-fill { height: 100%; width: 28%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 50px; box-shadow: 0 0 20px var(--primary-glow); transition: 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        #connectBtn { background: #fff; color: #000; padding: 18px 50px; border-radius: 100px; border: none; font-weight: 800; cursor: pointer; margin-bottom: 50px; transition: 0.4s; }
+        /* Buttons */
+        #connectBtn { background: #fff; color: #000; padding: 20px 60px; border-radius: 100px; border: none; font-weight: 800; cursor: pointer; margin-bottom: 60px; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-size: 1.1rem; box-shadow: 0 10px 20px rgba(255,255,255,0.1); }
+        #connectBtn:hover { transform: scale(1.05); box-shadow: 0 15px 30px rgba(99, 102, 241, 0.3); }
 
-        /* Wallet Modal Icons Fix */
-        #wallet-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
-        .modal-content { background: #0f172a; padding: 30px; border-radius: 32px; border: 1px solid var(--glass-border); width: 90%; max-width: 400px; }
-        .wallet-option { 
-            display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.03); 
-            padding: 16px; border-radius: 20px; margin-top: 12px; cursor: pointer; border: 1px solid var(--glass-border); 
-            color: white; width: 100%; font-size: 1.1rem; font-weight: 700; transition: 0.3s;
-        }
-        .wallet-option:hover { background: rgba(255,255,255,0.08); border-color: var(--primary); transform: translateX(5px); }
-        .wallet-option svg, .wallet-option img { width: 32px; height: 32px; }
+        /* Wallet Modal UI - Senior Optimized */
+        #wallet-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
+        .modal-content { background: #0f172a; padding: 35px; border-radius: 35px; border: 1px solid var(--glass-border); width: 90%; max-width: 420px; box-shadow: 0 0 60px rgba(0,0,0,0.8); }
+        .wallet-option { display: flex; align-items: center; gap: 18px; background: rgba(255,255,255,0.04); padding: 18px; border-radius: 22px; margin-top: 14px; cursor: pointer; border: 1px solid var(--glass-border); color: white; width: 100%; font-size: 1.15rem; font-weight: 700; transition: 0.25s; }
+        .wallet-option:hover { background: rgba(255,255,255,0.1); border-color: var(--primary); transform: translateX(10px); }
+        .wallet-option img { width: 34px; height: 34px; }
 
-        /* Cards Grid */
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; width: 100%; max-width: 1100px; }
-        .package-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 28px; padding: 40px; text-align: center; transition: 0.4s; position: relative; }
-        .package-card:hover { transform: translateY(-10px); }
-        .buy-btn { width: 100%; padding: 15px; border-radius: 16px; border: 1px solid var(--primary); background: rgba(99, 102, 241, 0.1); color: white; font-weight: 700; cursor: pointer; }
+        /* Grid */
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; width: 100%; max-width: 1150px; padding-bottom: 100px; }
+        .package-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 32px; padding: 45px; text-align: center; transition: 0.4s; position: relative; }
+        .package-card:hover { transform: translateY(-15px); border-color: var(--primary); background: rgba(17, 24, 39, 0.9); }
+        .buy-btn { width: 100%; padding: 16px; border-radius: 18px; border: 1px solid var(--primary); background: rgba(99, 102, 241, 0.1); color: white; font-weight: 800; cursor: pointer; margin-top: 20px; }
+        .buy-btn:hover:not(:disabled) { background: var(--primary); }
 
-        /* Lang Buttons */
-        .lang-switcher { display: flex; gap: 10px; margin-bottom: 20px; }
-        .lang-btn { background: var(--card-bg); border: 1px solid var(--glass-border); color: white; padding: 8px 15px; border-radius: 10px; cursor: pointer; }
-        .lang-btn.active { background: var(--primary); }
+        /* Chat Window - Restored & Improved */
+        #chat-container { position: fixed; bottom: 30px; right: 30px; z-index: 9999; }
+        #chat-trigger { width: 75px; height: 75px; border-radius: 50%; border: 3px solid var(--primary); background: url('https://img.icons8.com/clouds/100/bot.png') center/cover #1e293b; cursor: pointer; box-shadow: 0 10px 30px var(--primary-glow); }
+        #chat-window { width: 380px; height: 550px; background: #0f172a; border-radius: 30px; border: 1px solid var(--glass-border); display: none; flex-direction: column; overflow: hidden; margin-bottom: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+        #chat-header { background: var(--primary); padding: 22px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 1.1rem; }
+        #chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: rgba(0,0,0,0.2); }
+        .msg { padding: 14px 18px; border-radius: 22px; font-size: 0.95rem; max-width: 85%; line-height: 1.4; }
+        .ai-msg { background: rgba(255,255,255,0.08); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .user-msg { background: var(--primary); align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="lang-switcher">
-        <button class="lang-btn active" onclick="setLanguage('hy', event)">AM</button>
-        <button class="lang-btn" onclick="setLanguage('en', event)">EN</button>
-        <button class="lang-btn" onclick="setLanguage('ru', event)">RU</button>
-    </div>
-
-    <header>
-        <h1>FYX Launchpad</h1>
-        <p id="t-subtitle">Մասնակցեք ապագայի ամենաթեժ պրեսեյլին։</p>
-    </header>
-
-    <section class="stats-card">
-        <div class="stats-header">
-            <div><span id="t-raised-lbl" style="color:var(--text-muted)">Հավաքված միջոցներ</span><h2 id="raised-amount" style="color:var(--accent); font-size:2.8rem;">$25,285</h2></div>
-            <span id="t-goal-lbl" style="font-weight:600;">նպատակը՝ $900,000</span>
-        </div>
-        <div class="progress-container"><div class="progress-fill" style="width: 28%;"></div></div>
-        <div style="display:flex; justify-content:space-between; font-size:0.9rem; color:var(--text-muted);">
-            <p><span id="t-sold-lbl">Վաճառված</span>: 50,000 FYX</p>
-            <p><span id="t-rem-lbl">Մնացել է</span>: 1,500,000 FYX</p>
-        </div>
-    </section>
-
-    <button id="connectBtn" onclick="openModal()">Connect Wallet</button>
-
     <div id="wallet-modal" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 style="margin-bottom: 20px; text-align: center;">Connect Wallet</h2>
+            <h2 style="margin-bottom: 25px; text-align: center; font-size: 1.8rem;">Select Wallet</h2>
             
             <button class="wallet-option" onclick="selectWallet('phantom')">
-                <img src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png" alt=""> Phantom
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/Solana_logo.png" alt=""> Phantom
             </button>
-
+            
             <button class="wallet-option" onclick="selectWallet('metamask')">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt=""> MetaMask
             </button>
@@ -116,55 +93,103 @@
                 <img src="https://raw.githubusercontent.com/solflare-wallet/media/master/logo-icon.png" alt=""> Solflare
             </button>
 
-            <button class="wallet-option" onclick="selectWallet('backpack')">
-                <img src="https://www.backpack.app/favicon.ico" alt=""> Backpack
+            <button class="wallet-option" onclick="selectWallet('okx')">
+                <img src="https://www.okx.com/cdn/assets/imgs/247/796684F661B612C2.png" alt=""> OKX Wallet
             </button>
 
-            <button style="width:100%; margin-top:15px; background:none; border:none; color:var(--text-muted); cursor:pointer;" onclick="closeModal()">Cancel</button>
+            <button class="wallet-option" onclick="selectWallet('coinbase')">
+                <img src="https://img.icons8.com/color/48/coinbase.png" alt=""> Coinbase
+            </button>
+
+            <button style="width:100%; margin-top:20px; background:none; border:none; color:var(--text-muted); cursor:pointer; font-weight:600;" onclick="closeModal()">Close</button>
         </div>
     </div>
 
+    <header>
+        <h1>FYX Launchpad</h1>
+        <p id="t-subtitle">Ապագայի ամենաթեժ պրեսեյլը հիմա հասանելի է:</p>
+    </header>
+
+    <section class="stats-card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+            <div><p style="color:var(--text-muted); font-weight:600;">Հավաքված միջոցներ</p><h2 style="color:var(--accent); font-size:3.2rem; font-weight:800;">$25,285</h2></div>
+            <p style="font-weight:700; color:var(--text-muted);">Goal: $900,000</p>
+        </div>
+        <div class="progress-container"><div class="progress-fill"></div></div>
+        <div style="display:flex; justify-content:space-between; color:var(--text-muted); font-weight:600;">
+            <span>Sold: 50,000 FYX</span>
+            <span>Rem: 1,500,000 FYX</span>
+        </div>
+    </section>
+
+    <button id="connectBtn" onclick="openModal()">Connect Wallet</button>
+
     <main class="cards-grid">
-        <div class="package-card"><h3>Starter</h3><div style="font-size:2.5rem; font-weight:800; margin:15px 0;">1,000</div><div style="color:var(--accent); font-weight:700; margin-bottom:20px;">9.00 USDT</div><button class="buy-btn t-buy-btn" disabled>Գնել USDT-ով</button></div>
-        <div class="package-card" style="border-color:var(--primary); transform:scale(1.05);"><div style="position:absolute; top:15px; right:15px; background:var(--primary); font-size:0.7rem; padding:4px 10px; border-radius:20px;">POPULAR</div><h3>Pro Plan</h3><div style="font-size:2.5rem; font-weight:800; margin:15px 0;">5,000</div><div style="color:var(--accent); font-weight:700; margin-bottom:20px;">45.00 USDT</div><button class="buy-btn t-buy-btn" disabled>Գնել USDT-ով</button></div>
-        <div class="package-card"><h3>Whale</h3><div style="font-size:2.5rem; font-weight:800; margin:15px 0;">10,000</div><div style="color:var(--accent); font-weight:700; margin-bottom:20px;">90.00 USDT</div><button class="buy-btn t-buy-btn" disabled>Գնել USDT-ով</button></div>
+        <div class="package-card"><h3>Starter</h3><div style="font-size:3rem; font-weight:800; margin:20px 0;">1,000</div><div style="color:var(--accent); font-size:1.4rem; font-weight:700;">9.00 USDT</div><button class="buy-btn" disabled>Buy Now</button></div>
+        <div class="package-card" style="border-color:var(--primary); transform:scale(1.05); z-index:2;">
+            <div style="position:absolute; top:-15px; left:50%; transform:translateX(-50%); background:var(--primary); padding:6px 20px; border-radius:50px; font-size:0.8rem; font-weight:800;">MOST POPULAR</div>
+            <h3>Pro Plan</h3><div style="font-size:3rem; font-weight:800; margin:20px 0;">5,000</div><div style="color:var(--accent); font-size:1.4rem; font-weight:700;">45.00 USDT</div><button class="buy-btn" disabled>Buy Now</button>
+        </div>
+        <div class="package-card"><h3>Whale</h3><div style="font-size:3rem; font-weight:800; margin:20px 0;">10,000</div><div style="color:var(--accent); font-size:1.4rem; font-weight:700;">90.00 USDT</div><button class="buy-btn" disabled>Buy Now</button></div>
     </main>
 
+    <div id="chat-container">
+        <div id="chat-window">
+            <div id="chat-header"><span>FYX AI Support</span> <button onclick="toggleChat()" style="background:none; border:none; color:#fff; cursor:pointer; font-size:1.2rem;">✕</button></div>
+            <div id="chat-messages"><div class="msg ai-msg">Ողջույն! Ես FYX օգնականն եմ: Ինչո՞վ կարող եմ օգնել:</div></div>
+            <div style="padding:20px; background:#1e293b; display:flex; gap:10px;">
+                <input type="text" id="chatInput" placeholder="Write a message..." style="flex:1; background:transparent; border:none; color:#fff; outline:none;" onkeypress="if(event.key==='Enter') sendMessage()">
+                <button onclick="sendMessage()" style="background:none; border:none; color:var(--primary); font-size:1.5rem; cursor:pointer;">➤</button>
+            </div>
+        </div>
+        <button id="chat-trigger" onclick="toggleChat()"></button>
+    </div>
+
     <script>
-        const translations = {
-            hy: { subtitle: "Մասնակցեք ապագայի ամենաթեժ պրեսեյլին։", raised: "Հավաքված միջոցներ", buy: "Գնել USDT-ով" },
-            en: { subtitle: "Participate in the hottest presale.", raised: "Funds Raised", buy: "Buy with USDT" },
-            ru: { subtitle: "Участвуйте в лучшем пресейле.", raised: "Собрано", buy: "Купить за USDT" }
-        };
-
-        function setLanguage(lang, event) {
-            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById('t-subtitle').innerText = translations[lang].subtitle;
-            document.getElementById('t-raised-lbl').innerText = translations[lang].raised;
-            document.querySelectorAll('.t-buy-btn').forEach(b => b.innerText = translations[lang].buy);
-        }
-
         function openModal() { document.getElementById('wallet-modal').style.display = 'flex'; }
         function closeModal() { document.getElementById('wallet-modal').style.display = 'none'; }
 
-        async function selectWallet(choice) {
+        async function selectWallet(wallet) {
             closeModal();
             let provider;
-            if (choice === 'phantom') provider = window.solana;
-            else if (choice === 'metamask') provider = window.ethereum;
-            else if (choice === 'solflare') provider = window.solflare;
-            else if (choice === 'backpack') provider = window.backpack;
+            try {
+                if (wallet === 'phantom') provider = window.solana;
+                else if (wallet === 'metamask') provider = window.ethereum;
+                else if (wallet === 'solflare') provider = window.solflare;
+                else if (wallet === 'okx') provider = window.okxwallet?.solana;
+                else if (wallet === 'coinbase') provider = window.coinbaseWalletExtension?.solana;
 
-            if (provider) {
-                try {
-                    const resp = await provider.request({ method: 'eth_requestAccounts' }).catch(() => provider.connect());
-                    const addr = (choice === 'metamask') ? resp[0] : provider.publicKey.toString();
-                    document.getElementById('connectBtn').innerText = addr.slice(0,4)+"..."+addr.slice(-4);
-                    document.getElementById('connectBtn').style.background = "#10b981";
+                if (provider) {
+                    const resp = (wallet === 'metamask') ? await provider.request({method: 'eth_requestAccounts'}) : await provider.connect();
+                    const addr = (wallet === 'metamask') ? resp[0] : provider.publicKey.toString();
+                    const btn = document.getElementById('connectBtn');
+                    btn.innerText = addr.slice(0,4) + "..." + addr.slice(-4);
+                    btn.style.background = "linear-gradient(135deg, #10b981, #059669)";
+                    btn.style.color = "white";
                     document.querySelectorAll('.buy-btn').forEach(b => b.disabled = false);
-                } catch (e) { alert("Միացումը մերժվեց"); }
-            } else { alert("Խնդրում ենք տեղադրել " + choice); }
+                } else {
+                    alert("Please install " + wallet + " extension!");
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function toggleChat() {
+            const win = document.getElementById('chat-window');
+            win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const box = document.getElementById('chat-messages');
+            if(!input.value.trim()) return;
+            box.innerHTML += `<div class="msg user-msg">${input.value}</div>`;
+            const val = input.value;
+            input.value = "";
+            box.scrollTop = box.scrollHeight;
+            setTimeout(() => {
+                box.innerHTML += `<div class="msg ai-msg">Մշակում եմ ձեր հարցումը "${val}"-ի վերաբերյալ...</div>`;
+                box.scrollTop = box.scrollHeight;
+            }, 800);
         }
     </script>
 </body>
