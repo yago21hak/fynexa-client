@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   const { message } = req.body;
 
   // Օգտագործում ենք gemini-1.5-flash, որը հիմա ամենահասանելին է
-  const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
   try {
     const response = await fetch(url, {
