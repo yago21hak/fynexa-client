@@ -103,20 +103,20 @@
     width: 65px;
     height: 65px;
     border-radius: 50%;
-    /* Տեղադրում ենք նկարը որպես background */
-    background-image: url('ai-avatar.jpg');
+    /* Օգտագործում ենք ուղիղ հղումը, որ միշտ աշխատի */
+    background-image: url('https://raw.githubusercontent.com/tictactoe-armenia/fynexa-assets/main/fynexa-fox.jpg');
     background-size: cover;
     background-position: center;
     border: 2px solid var(--primary);
     cursor: pointer;
     box-shadow: 0 4px 20px var(--primary-glow);
     transition: 0.3s;
-    /* Հեռացնում ենք հին տեքստը/էմոջին */
     font-size: 0; 
+    z-index: 10000;
 }
 
 #chat-trigger:hover {
-    transform: scale(1.1);
+    transform: scale(1.1) rotate(5deg);
 }
         #chat-window { 
             width: clamp(300px, 90vw, 380px); height: 500px; background: #111827; 
