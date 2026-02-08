@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FYX Launchpad - Premium Presale</title>
+    <title>FYX Launchpad - USDT Presale</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <script src="https://unpkg.com/@solana/spl-token@0.3.8/lib/index.iife.min.js"></script>
 
     <style>
         :root {
@@ -23,128 +25,134 @@
             align-items: center; padding: 20px;
             background-image: radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.1) 0%, transparent 30%), radial-gradient(circle at 90% 90%, rgba(168, 85, 247, 0.1) 0%, transparent 30%);
         }
-        .lang-switcher { width: 100%; max-width: 1100px; display: flex; gap: 10px; margin-bottom: 20px; }
-        .lang-btn { background: var(--card-bg); border: 1px solid var(--glass-border); color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
-        .lang-btn.active { background: var(--primary); border-color: var(--primary); }
+
+        /* Stats & Header */
         header { text-align: center; margin-bottom: 40px; }
-        header h1 { font-size: clamp(2.2rem, 8vw, 4rem); font-weight: 800; background: linear-gradient(135deg, #fff 20%, var(--primary) 60%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .stats-card { background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 28px; padding: 40px; width: 100%; max-width: 800px; margin-bottom: 40px; }
-        #raised-amount { font-size: 2.5rem; font-weight: 800; color: var(--accent); }
-        .progress-container { width: 100%; background: rgba(255, 255, 255, 0.05); height: 16px; border-radius: 50px; margin: 20px 0; overflow: hidden; }
-        .progress-fill { height: 100%; width: 5%; background: linear-gradient(90deg, var(--primary), var(--secondary)); box-shadow: 0 0 20px var(--primary-glow); }
-        #connectBtn { background: #ffffff; color: #000; padding: 16px 40px; border-radius: 100px; border: none; font-weight: 700; cursor: pointer; margin-bottom: 50px; width: 100%; max-width: 300px; transition: 0.3s; }
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; width: 100%; max-width: 1100px; }
-        .package-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 30px; text-align: center; transition: 0.4s; }
-        .action-btn { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white; font-weight: 700; cursor: pointer; }
-        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        header h1 { font-size: 3rem; font-weight: 800; background: linear-gradient(135deg, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        #connectBtn { background: #ffffff; color: #000; padding: 16px 40px; border-radius: 100px; border: none; font-weight: 700; cursor: pointer; margin-bottom: 50px; transition: 0.3s; }
+        #connectBtn:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--primary-glow); }
+
+        /* Grid & Cards */
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; width: 100%; max-width: 1000px; }
+        .package-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 30px; text-align: center; backdrop-filter: blur(10px); }
+        .price-tag { color: var(--accent); font-size: 1.5rem; font-weight: 700; margin: 15px 0; }
+        .action-btn { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--primary); background: transparent; color: white; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .action-btn:hover:not(:disabled) { background: var(--primary); }
+        .action-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* AI Chat UI */
+        #chat-container { position: fixed; bottom: 20px; right: 20px; z-index: 999; }
+        #chat-window { width: 350px; height: 450px; background: #111827; border: 1px solid var(--glass-border); border-radius: 20px; display: none; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #chat-header { background: var(--primary); padding: 15px; display: flex; justify-content: space-between; font-weight: bold; }
+        #chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px; border-radius: 10px; font-size: 0.9rem; max-width: 80%; }
+        .ai-msg { background: rgba(255,255,255,0.1); align-self: flex-start; }
+        .user-msg { background: var(--primary); align-self: flex-end; }
+        #chat-input-area { padding: 10px; display: flex; gap: 5px; background: #1f2937; }
+        #chat-input-area input { flex: 1; background: transparent; border: none; color: white; outline: none; }
+        #chat-trigger { width: 60px; height: 60px; border-radius: 50%; background: var(--primary); border: none; cursor: pointer; font-size: 24px; box-shadow: 0 5px 15px var(--primary-glow); }
     </style>
 </head>
 <body>
 
-    <div class="lang-switcher">
-        <button class="lang-btn active" onclick="setLanguage('hy')">AM</button>
-        <button class="lang-btn" onclick="setLanguage('en')">EN</button>
-    </div>
-
     <header>
         <h1>FYX Launchpad</h1>
-        <p id="t-subtitle">Մասնակցեք ապագայի ամենաթեժ պրեսեյլին։</p>
+        <p>Գնեք FYX թոքեններ USDT-ով</p>
     </header>
-
-    <section class="stats-card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <span id="t-raised-lbl">Հավաքված միջոցներ</span>
-                <h2 id="raised-amount">$25,500</h2>
-            </div>
-            <span id="t-goal-lbl">նպատակը՝ $900,000</span>
-        </div>
-        <div class="progress-container"><div class="progress-fill"></div></div>
-    </section>
 
     <button id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
 
     <main class="cards-grid">
         <div class="package-card">
             <h3>Starter</h3>
-            <div style="font-size: 2rem; font-weight: 800;">1,000 FYX</div>
-            <div style="color: var(--accent); margin-bottom: 20px;">0.05 SOL</div>
-            <button class="action-btn buy-btn" onclick="handleBuy(0.05)" disabled>Գնել SOL-ով</button>
+            <div class="price-tag">9 USDT</div>
+            <button class="action-btn buy-btn" onclick="handleBuyUSDT(9)" disabled>Գնել 1,000 FYX</button>
         </div>
         <div class="package-card">
-            <h3>Pro Plan</h3>
-            <div style="font-size: 2rem; font-weight: 800;">5,000 FYX</div>
-            <div style="color: var(--accent); margin-bottom: 20px;">0.25 SOL</div>
-            <button class="action-btn buy-btn" onclick="handleBuy(0.25)" disabled>Գնել SOL-ով</button>
-        </div>
-        <div class="package-card">
-            <h3>Whale</h3>
-            <div style="font-size: 2rem; font-weight: 800;">10,000 FYX</div>
-            <div style="color: var(--accent); margin-bottom: 20px;">0.50 SOL</div>
-            <button class="action-btn buy-btn" onclick="handleBuy(0.5)" disabled>Գնել SOL-ով</button>
+            <h3>Pro</h3>
+            <div class="price-tag">45 USDT</div>
+            <button class="action-btn buy-btn" onclick="handleBuyUSDT(45)" disabled>Գնել 5,000 FYX</button>
         </div>
     </main>
+
+    <div id="chat-container">
+        <div id="chat-window">
+            <div id="chat-header">FYX Assistant <button onclick="toggleChat()" style="background:none; border:none; color:white; cursor:pointer;">✕</button></div>
+            <div id="chat-messages"><div class="msg ai-msg">Ողջույն: Ես պատրաստ եմ օգնել Ձեզ USDT-ով գնումներ կատարելու հարցում:</div></div>
+            <div id="chat-input-area">
+                <input type="text" id="user-input" placeholder="Հարցրեք ինձ...">
+                <button onclick="sendAiMessage()" style="background:none; border:none; color:var(--primary); cursor:pointer; font-weight:bold;">➤</button>
+            </div>
+        </div>
+        <button id="chat-trigger" onclick="toggleChat()">🤖</button>
+    </div>
 
     <script>
         let walletAddress = null;
         const DESTINATION_WALLET = "6ynnNf86uYvjTf3qWf5K1WeSBvT7Y3uC4P6z8vS";
+        const USDT_MINT = new solanaWeb3.PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB");
 
-        // 1. Դրամապանակի միացում
         async function connectWallet() {
-            if (window.solana && window.solana.isPhantom) {
+            if (window.solana) {
                 try {
                     const resp = await window.solana.connect();
                     walletAddress = resp.publicKey.toString();
-                    document.getElementById('connectBtn').innerText = walletAddress.slice(0, 4) + "..." + walletAddress.slice(-4);
-                    document.getElementById('connectBtn').style.background = "#10b981";
-                    
-                    // Ակտիվացնել կոճակները
+                    document.getElementById('connectBtn').innerText = "Միացված է";
                     document.querySelectorAll('.buy-btn').forEach(btn => btn.disabled = false);
-                } catch (err) {
-                    console.error("User rejected connection");
-                }
-            } else {
-                alert("Խնդրում ենք տեղադրել Phantom Wallet-ը");
-                window.open("https://phantom.app/", "_blank");
-            }
+                } catch (e) { console.error("Connection failed"); }
+            } else { alert("Խնդրում ենք տեղադրել Phantom!"); }
         }
 
-        // 2. Գնման գործողություն (SOL փոխանցում)
-        async function handleBuy(amount) {
-            if (!walletAddress) return;
-
+        async function handleBuyUSDT(amount) {
             try {
                 const connection = new solanaWeb3.Connection("https://api.mainnet-beta.solana.com", "confirmed");
-                const provider = window.solana;
+                const fromPubkey = window.solana.publicKey;
+                const toPubkey = new solanaWeb3.PublicKey(DESTINATION_WALLET);
+
+                // Ստանում ենք USDT հասցեները (Associated Token Accounts)
+                const fromTokenAccount = await splToken.getAssociatedTokenAddress(USDT_MINT, fromPubkey);
+                const toTokenAccount = await splToken.getAssociatedTokenAddress(USDT_MINT, toPubkey);
 
                 const transaction = new solanaWeb3.Transaction().add(
-                    solanaWeb3.SystemProgram.transfer({
-                        fromPubkey: provider.publicKey,
-                        toPubkey: new solanaWeb3.PublicKey(DESTINATION_WALLET),
-                        lamports: amount * solanaWeb3.LAMPORTS_PER_SOL
-                    })
+                    splToken.createTransferInstruction(
+                        fromTokenAccount,
+                        toTokenAccount,
+                        fromPubkey,
+                        amount * 1000000 // USDT-ն ունի 6 decimal
+                    )
                 );
 
-                transaction.feePayer = provider.publicKey;
                 const { blockhash } = await connection.getLatestBlockhash();
                 transaction.recentBlockhash = blockhash;
+                transaction.feePayer = fromPubkey;
 
-                const { signature } = await provider.signAndSendTransaction(transaction);
-                alert("Գործարքը հաջողվեց: ID: " + signature);
+                const { signature } = await window.solana.signAndSendTransaction(transaction);
+                alert("Հաջողություն! Տրանզակցիան ուղարկված է: ID: " + signature);
             } catch (err) {
                 console.error(err);
-                alert("Գործարքը չեղարկվեց կամ սխալ տեղի ունեցավ:");
+                alert("Սխալ: Համոզվեք, որ ունեք USDT և SOL (գազի համար):");
             }
         }
 
-        // Լեզվի փոփոխություն (պարզեցված)
-        function setLanguage(lang) {
-            const t = {
-                hy: { sub: "Մասնակցեք ապագայի ամենաթեժ պրեսեյլին։", buy: "Գնել SOL-ով" },
-                en: { sub: "Join the hottest presale of the future.", buy: "Buy with SOL" }
-            };
-            document.getElementById('t-subtitle').innerText = t[lang].sub;
-            document.querySelectorAll('.buy-btn').forEach(btn => btn.innerText = t[lang].buy);
+        function toggleChat() {
+            const win = document.getElementById('chat-window');
+            win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        function sendAiMessage() {
+            const input = document.getElementById('user-input');
+            const val = input.value.trim();
+            if(!val) return;
+
+            const chat = document.getElementById('chat-messages');
+            chat.innerHTML += `<div class="msg user-msg">${val}</div>`;
+            input.value = "";
+
+            setTimeout(() => {
+                chat.innerHTML += `<div class="msg ai-msg">Մշակում եմ Ձեր հարցումը USDT-ի վերաբերյալ...</div>`;
+                chat.scrollTop = chat.scrollHeight;
+            }, 800);
         }
     </script>
 </body>
