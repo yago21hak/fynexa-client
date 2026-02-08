@@ -4,38 +4,32 @@ export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
   const { message } = req.body;
 
-  // ՈՒՂՂՈՒՄ: Օգտագործում ենք v1 տարբերակը և gemini-1.5-flash մոդելը
-const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`;
+  // Փորձում ենք v1 տարբերակը ամենակայուն մոդելով
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
   try {
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{
-          parts: [{ text: message }]
-        }]
+        contents: [{ parts: [{ text: message }] }]
       })
     });
 
     const data = await response.json();
 
-    // Եթե API-ն վերադարձնում է սխալ
     if (data.error) {
-      return res.status(200).json({ 
-        text: `AI Սխալ: ${data.error.message} (Կոդ: ${data.error.code})` 
-      });
+      console.error("API Error:", data.error);
+      return res.status(200).json({ text: `AI-ն հասանելի չէ այս պահին: (Սխալ: ${data.error.message})` });
     }
 
-    // Ստուգում ենք պատասխանի առկայությունը
     if (data.candidates && data.candidates[0].content) {
-      const aiResponse = data.candidates[0].content.parts[0].text;
-      return res.status(200).json({ text: aiResponse });
-    } else {
-      return res.status(200).json({ text: "AI-ն պատասխան չգեներացրեց, փորձեք նորից:" });
+      return res.status(200).json({ text: data.candidates[0].content.parts[0].text });
     }
+    
+    return res.status(200).json({ text: "AI-ն դեռ մտածում է, փորձեք մի փոքր ուշ:" });
 
   } catch (error) {
-    return res.status(200).json({ text: "Սերվերային սխալ: " + error.message });
+    return res.status(200).json({ text: "Կապի սխալ: " + error.message });
   }
 }
