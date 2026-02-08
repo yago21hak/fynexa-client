@@ -1,63 +1,250 @@
 <!DOCTYPE html>
 <html lang="hy">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FYX Launchpad - Premium Presale</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
+
     <style>
-        /* --- Ավելացված Loading Անիմացիա --- */
-        .typing {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 10px 15px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-            width: fit-content;
-            margin-bottom: 10px;
+        :root {
+            --bg: #030712; --card-bg: rgba(17, 24, 39, 0.4);
+            --primary: #6366f1; --primary-glow: rgba(99, 102, 241, 0.4);
+            --secondary: #a855f7; --accent: #10b981;
+            --text: #f9fafb; --text-muted: #94a3b8; --glass-border: rgba(255, 255, 255, 0.08);
         }
-        .typing span {
-            width: 6px;
-            height: 6px;
-            background: var(--text-muted);
-            border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg); color: var(--text);
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; padding: 40px 20px;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.1) 0%, transparent 30%),
+                radial-gradient(circle at 90% 90%, rgba(168, 85, 247, 0.1) 0%, transparent 30%);
         }
-        .typing span:nth-child(1) { animation-delay: -0.32s; }
-        .typing span:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
+
+        /* Language Switcher */
+        .lang-switcher {
+            position: absolute; top: 20px; left: 20px;
+            display: flex; gap: 10px; z-index: 3000;
         }
+        .lang-btn {
+            background: var(--card-bg); border: 1px solid var(--glass-border);
+            color: white; padding: 8px 12px; border-radius: 8px;
+            cursor: pointer; font-size: 0.8rem; transition: 0.3s;
+        }
+        .lang-btn:hover, .lang-btn.active { background: var(--primary); border-color: var(--primary); }
+
+        header { text-align: center; margin-bottom: 60px; }
+        header h1 {
+            font-size: clamp(2.5rem, 8vw, 4.5rem); font-weight: 800;
+            background: linear-gradient(135deg, #fff 20%, var(--primary) 60%, var(--secondary) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .stats-card {
+            background: var(--card-bg); backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: 28px;
+            padding: 40px; width: 100%; max-width: 800px; margin-bottom: 40px;
+        }
+        .stats-header { display: flex; justify-content: space-between; align-items: flex-end; }
+        #raised-amount { font-size: 2.5rem; font-weight: 800; color: var(--accent); }
+        .progress-container {
+            width: 100%; background: rgba(255, 255, 255, 0.05); height: 18px;
+            border-radius: 50px; margin: 25px 0; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--secondary));
+            box-shadow: 0 0 20px var(--primary-glow); transition: width 2s ease;
+        }
+        .info-row { display: flex; justify-content: space-between; color: var(--text-muted); }
+        #connectBtn {
+            background: #ffffff; color: #000; padding: 16px 48px; border-radius: 100px;
+            border: none; font-weight: 700; cursor: pointer; margin-bottom: 50px; transition: 0.3s;
+        }
+        #connectBtn:hover { transform: translateY(-3px); background: var(--primary); color: white; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; width: 100%; max-width: 1100px; }
+        .package-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 32px; padding: 40px; text-align: center; transition: 0.4s; }
+        .package-card:hover { transform: translateY(-10px); border-color: var(--primary); }
+        .token-amount { font-size: 2.8rem; font-weight: 800; margin-bottom: 10px; }
+        .price-tag { color: var(--accent); margin-bottom: 30px; font-weight: 600; }
+        .action-btn {
+            width: 100%; padding: 14px; border-radius: 16px; margin-top: 10px;
+            border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03);
+            color: white; font-weight: 700; cursor: pointer;
+        }
+        .action-btn:hover:not(:disabled) { background: white; color: black; }
+        .action-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+
+        /* AI Chat Styles */
+        #chat-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; }
+        #chat-trigger { width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; border: none; cursor: pointer; font-size: 24px; box-shadow: 0 4px 20px var(--primary-glow); transition: 0.3s; }
+        #chat-window { width: 350px; height: 500px; background: #111827; border-radius: 24px; border: 1px solid var(--glass-border); box-shadow: 0 8px 32px rgba(0,0,0,0.4); display: none; flex-direction: column; overflow: hidden; margin-bottom: 15px; backdrop-filter: blur(10px); }
+        #chat-header { background: var(--primary); padding: 15px 20px; display: flex; justify-content: space-between; font-weight: 700; }
+        #chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .msg { padding: 10px 15px; border-radius: 15px; font-size: 0.9rem; max-width: 85%; line-height: 1.4; }
+        .user-msg { background: var(--primary); align-self: flex-end; border-bottom-right-radius: 4px; }
+        .ai-msg { background: rgba(255,255,255,0.1); align-self: flex-start; border-bottom-left-radius: 4px; }
+        #chat-input-area { padding: 15px; background: rgba(0,0,0,0.2); display: flex; gap: 10px; }
+        #chat-input-area input { flex: 1; background: transparent; border: 1px solid var(--glass-border); padding: 10px; border-radius: 12px; color: white; outline: none; }
+        #chat-input-area button { background: var(--primary); border: none; padding: 10px 15px; border-radius: 12px; color: white; cursor: pointer; }
+
+        /* Loading Dots */
+        .typing-loader { display: flex; gap: 4px; padding: 10px 15px; background: rgba(255,255,255,0.05); border-radius: 15px; width: fit-content; margin-bottom: 10px; }
+        .typing-loader span { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
+        .typing-loader span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-loader span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
     </style>
 </head>
 <body>
+
+    <div class="lang-switcher">
+        <button class="lang-btn active" onclick="setLanguage('hy')">AM</button>
+        <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+        <button class="lang-btn" onclick="setLanguage('ru')">RU</button>
+    </div>
+
+    <header>
+        <h1 id="t-title">FYX Launchpad</h1>
+        <p id="t-subtitle">Մասնակցեք ապագայի ամենաթեժ պրեսեյլին։</p>
+    </header>
+
+    <section class="stats-card">
+        <div class="stats-header">
+            <div>
+                <span style="font-size: 0.9rem;" id="t-raised-lbl">Հավաքված միջոցներ</span>
+                <h2 id="raised-amount">$0</h2>
+            </div>
+            <span class="goal-amount" id="t-goal-lbl">նպատակը՝ $900,000</span>
+        </div>
+        <div class="progress-container">
+            <div id="progress-bar-fill" class="progress-fill"></div>
+        </div>
+        <div class="info-row">
+            <p><span id="t-sold-lbl">Վաճառված</span>: <strong id="sold-tokens">0 FYX</strong></p>
+            <p><span id="t-rem-lbl">Մնացել է</span>: <strong id="remaining-tokens">100,000,000 FYX</strong></p>
+        </div>
+    </section>
+
+    <button id="connectBtn">Connect Wallet</button>
+
+    <main class="cards-grid">
+        <div class="package-card">
+            <h3 id="t-p1-name">Starter</h3>
+            <div class="token-amount">1,000 FYX</div>
+            <div class="price-tag">9.00 USDC</div>
+            <button class="action-btn buy-btn usdc-button t-buy-btn" data-amount="9" data-tokens="1000" disabled>Գնել USDC-ով</button>
+        </div>
+        
+        <div class="package-card">
+            <h3 id="t-p2-name">Pro Plan</h3>
+            <div class="token-amount">5,000 FYX</div>
+            <div class="price-tag">45.00 USDC</div>
+            <button class="action-btn buy-btn usdc-button t-buy-btn" data-amount="45" data-tokens="5000" disabled>Գնել USDC-ով</button>
+        </div>
+
+        <div class="package-card">
+            <h3 id="t-p3-name">Whale</h3>
+            <div class="token-amount">10,000 FYX</div>
+            <div class="price-tag">90.00 USDC</div>
+            <button class="action-btn buy-btn usdc-button t-buy-btn" data-amount="90" data-tokens="10000" disabled>Գնել USDC-ով</button>
+        </div>
+    </main>
+
+    <div id="chat-container">
+        <div id="chat-window">
+            <div id="chat-header">
+                <span>FYX AI Assistant</span>
+                <button onclick="toggleChat()" style="background:none; border:none; color:white; cursor:pointer;">✕</button>
+            </div>
+            <div id="chat-messages">
+                <div class="msg ai-msg" id="t-ai-welcome">Ողջույն! Ես Fynexa-ի խելացի օգնականն եմ: Ինչպե՞ս կարող եմ օգնել Ձեզ:</div>
+            </div>
+            <div id="chat-input-area">
+                <input type="text" id="user-input" placeholder="Հարցրեք ինչ-որ բան..." onkeypress="if(event.key==='Enter') sendAiMessage()">
+                <button onclick="sendAiMessage()">➤</button>
+            </div>
+        </div>
+        <button id="chat-trigger" onclick="toggleChat()">🤖</button>
+    </div>
+
     <script>
+        const translations = {
+            hy: {
+                subtitle: "Մասնակցեք ապագայի ամենաթեժ պրեսեյլին։",
+                raised: "Հավաքված միջոցներ",
+                goal: "նպատակը՝ $900,000",
+                sold: "Վաճառված",
+                rem: "Մնացել է",
+                buy: "Գնել USDC-ով",
+                welcome: "Ողջույն! Ես Fynexa-ի խելացի օգնականն եմ: Ինչպե՞ս կարող եմ օգնել Ձեզ:",
+                placeholder: "Հարցրեք ինչ-որ բան..."
+            },
+            en: {
+                subtitle: "Participate in the hottest presale of the future.",
+                raised: "Funds Raised",
+                goal: "Goal: $900,000",
+                sold: "Sold",
+                rem: "Remaining",
+                buy: "Buy with USDC",
+                welcome: "Hello! I am Fynexa's smart assistant. How can I help you?",
+                placeholder: "Ask something..."
+            },
+            ru: {
+                subtitle: "Участвуйте в самом горячем пресейле будущего.",
+                raised: "Собрано средств",
+                goal: "Цель: $900,000",
+                sold: "Продано",
+                rem: "Осталось",
+                buy: "Купить за USDC",
+                welcome: "Здравствуйте! Я умный помощник Fynexa. Чем я могу вам помочь?",
+                placeholder: "Спросите что-нибудь..."
+            }
+        };
+
+        function setLanguage(lang) {
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.getElementById('t-subtitle').innerText = translations[lang].subtitle;
+            document.getElementById('t-raised-lbl').innerText = translations[lang].raised;
+            document.getElementById('t-goal-lbl').innerText = translations[lang].goal;
+            document.getElementById('t-sold-lbl').innerText = translations[lang].sold;
+            document.getElementById('t-rem-lbl').innerText = translations[lang].rem;
+            document.getElementById('user-input').placeholder = translations[lang].placeholder;
+            document.querySelectorAll('.t-buy-btn').forEach(btn => btn.innerText = translations[lang].buy);
+        }
+
         function toggleChat() {
             const win = document.getElementById('chat-window');
             win.style.display = win.style.display === 'flex' ? 'none' : 'flex';
         }
 
-        let isAiLoading = false; // Rate limiting-ի և loading-ի համար
+        let isAiLoading = false;
 
         async function sendAiMessage() {
             const input = document.getElementById('user-input');
             const container = document.getElementById('chat-messages');
             const text = input.value.trim();
-            
-            if(!text || isAiLoading) return; // Արգելում ենք նոր հարցումը, եթե արդեն բեռնվում է
+            if(!text || isAiLoading) return;
 
-            // 1. Ավելացնում ենք օգտատիրոջ հաղորդագրությունը
+            // User msg
             const uDiv = document.createElement('div');
             uDiv.className = 'msg user-msg';
             uDiv.innerText = text;
             container.appendChild(uDiv);
             input.value = '';
-            
-            // 2. Ավելացնում ենք Loading ցուցիչը
+
+            // Loading state
             isAiLoading = true;
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'typing';
-            loadingDiv.id = 'ai-loading';
-            loadingDiv.innerHTML = '<span></span><span></span><span></span>';
-            container.appendChild(loadingDiv);
+            const loader = document.createElement('div');
+            loader.className = 'typing-loader';
+            loader.id = 'ai-loader';
+            loader.innerHTML = '<span></span><span></span><span></span>';
+            container.appendChild(loader);
             container.scrollTop = container.scrollHeight;
 
             try {
@@ -68,26 +255,22 @@
                 });
                 const data = await res.json();
                 
-                // Հեռացնում ենք Loading-ը
-                document.getElementById('ai-loading').remove();
-
-                // 3. Ավելացնում ենք AI-ի պատասխանը
+                document.getElementById('ai-loader').remove();
                 const aiDiv = document.createElement('div');
                 aiDiv.className = 'msg ai-msg';
-                aiDiv.innerText = data.text || "Կներեք, սխալ տեղի ունեցավ:";
+                aiDiv.innerText = data.text || "Error occurred.";
                 container.appendChild(aiDiv);
-                
             } catch(e) {
-                if(document.getElementById('ai-loading')) document.getElementById('ai-loading').remove();
-                const errDiv = document.createElement('div');
-                errDiv.className = 'msg ai-msg';
-                errDiv.innerText = "Կապի սխալ: Փորձեք մի փոքր ուշ:";
-                container.appendChild(errDiv);
+                if(document.getElementById('ai-loader')) document.getElementById('ai-loader').remove();
             } finally {
                 isAiLoading = false;
                 container.scrollTop = container.scrollHeight;
             }
         }
     </script>
+
+    <script type="module" src="wallet-logic.js"></script>
+    <script type="module" src="usdc-logic.js"></script>
+    <script type="module" src="progress-sync.js"></script>
 </body>
 </html>
