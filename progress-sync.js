@@ -1,9 +1,7 @@
 async function refreshStats() {
     try {
-        // Մենք դիմում ենք ուղիղ մեր սարքած API-ին
         const response = await fetch('/api/stats');
         
-        // Ստուգում ենք՝ արդյոք պատասխանը JSON է
         if (!response.ok) {
             throw new Error(`Server error: ${response.status}`);
         }
@@ -11,25 +9,35 @@ async function refreshStats() {
         const data = await response.json();
         console.log("Տվյալները թարմացվեցին:", data);
 
-        // 1. Թարմացնում ենք հավաքված գումարը ($150)
+        // Ուղղում. Օգտագործում ենք total_collected, քանի որ քո բազան այդպես է վերադարձնում
+        // Եթե տվյալը չկա, դնում ենք 0, որպեսզի toLocaleString-ը չկոտրվի
+        const raised = data.total_collected || 0; 
+        const goal = data.goal || 900000;
+        const sold = data.sold || 0;
+        const remaining = data.remaining || 0;
+
+        // 1. Թարմացնում ենք հավաքված գումարը
         const raisedText = document.getElementById('raised-amount');
         if (raisedText) {
-            raisedText.innerText = `$${data.raised.toLocaleString()}`;
+            raisedText.innerText = `$${raised.toLocaleString()}`;
         }
 
-        // 2. Թարմացնում ենք Progress Bar-ի կապույտ մասը
+        // 2. Թարմացնում ենք Progress Bar-ը
         const barFill = document.getElementById('progress-bar-fill');
         if (barFill) {
-            const percent = (data.raised / data.goal) * 100;
+            const percent = (raised / goal) * 100;
             barFill.style.width = `${Math.min(percent, 100)}%`;
         }
 
         // 3. Թարմացնում ենք մնացած թվերը
-        if (document.getElementById('sold-tokens')) {
-            document.getElementById('sold-tokens').innerText = `${data.sold.toLocaleString()} FYX`;
+        const soldEl = document.getElementById('sold-tokens');
+        if (soldEl) {
+            soldEl.innerText = `${sold.toLocaleString()} FYX`;
         }
-        if (document.getElementById('remaining-tokens')) {
-            document.getElementById('remaining-tokens').innerText = `${data.remaining.toLocaleString()} FYX`;
+        
+        const remainingEl = document.getElementById('remaining-tokens');
+        if (remainingEl) {
+            remainingEl.innerText = `${remaining.toLocaleString()} FYX`;
         }
 
     } catch (err) {
