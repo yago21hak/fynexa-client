@@ -4,8 +4,11 @@ export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
   const { message } = req.body;
 
-  // Ուղիղ հասցե դեպի Google API v1 (ոչ թե v1beta)
-  const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  // Սա մեզ կօգնի տեսնել իրական ռեգիոնը Vercel Logs-ում
+  const currentRegion = process.env.VERCEL_REGION || "unknown";
+  console.log("Current execution region:", currentRegion);
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
   try {
     const response = await fetch(url, {
@@ -19,6 +22,12 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (data.error) {
+      // Եթե Google-ը ասում է, որ location-ը չի աջակցվում
+      if (data.error.message.toLowerCase().includes("location")) {
+        return res.status(200).json({ 
+          text: `Google-ը մերժում է հարցումը: Սերվերը դեռ գտնվում է ${currentRegion} ռեգիոնում: Խնդրում եմ արա Redeploy 'Clear Build Cache'-ով:` 
+        });
+      }
       throw new Error(data.error.message);
     }
 
@@ -26,13 +35,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ text: aiResponse });
 
   } catch (error) {
-    console.error("Direct API Error:", error.message);
-    
-    // Եթե ռեգիոնի սխալ է
-    if (error.message.includes("location") || error.message.includes("supported")) {
-        return res.status(200).json({ text: "Տարածաշրջանի սխալ: Ստուգիր Vercel Region-ը (պետք է լինի iad1):" });
-    }
-
     return res.status(200).json({ text: "Սխալ: " + error.message });
   }
 }
