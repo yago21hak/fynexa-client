@@ -1,21 +1,38 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-
 export default async function handler(req, res) {
-  // Ստանում ենք տվյալները Supabase-ից
-  const { data, error } = await supabase
-    .from('launchpad_stats')
-    .select('*')
-    .single();
+  // 1. Ստուգում ենք CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  
+  try {
+    // 2. Ստուգում ենք Environment Variables-ի առկայությունը
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
+      return res.status(200).json({ 
+        debug: "Environment variables are missing!",
+        url: !!process.env.SUPABASE_URL,
+        key: !!process.env.SUPABASE_KEY
+      });
+    }
 
-  if (error) return res.status(500).json({ error: error.message });
+    // 3. Փորձում ենք միանալ Supabase-ին
+    const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+    
+    const { data, error } = await supabase
+      .from('launchpad_stats')
+      .select('*')
+      .maybeSingle();
 
-  // Վերադարձնում ենք տվյալները քո ֆրոնտենդին
-  res.status(200).json({
-    raised: data.total_collected,
-    goal: 900000,
-    sold: data.total_collected * 111, // Օրինակ՝ 1 USD = 111 FYX
-    remaining: 100000000 - (data.total_collected * 111)
-  });
+    if (error) {
+      return res.status(200).json({ debug: "Supabase Query Error", details: error });
+    }
+
+    return res.status(200).json(data);
+  } catch (err) {
+    // 4. Եթե ամեն ինչ ձախողվի, ուղարկիր սխալի տեքստը բրաուզերին
+    return res.status(200).json({ 
+      debug: "Critical Runtime Error", 
+      message: err.message,
+      stack: err.stack 
+    });
+  }
 }
