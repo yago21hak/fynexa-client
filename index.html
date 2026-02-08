@@ -247,22 +247,38 @@
     }
 
     // 2. Գնման տրամաբանություն (USDC փոխանցում)
-    async function handleBuy(amount) {
-        if (!userWallet) return alert("Սկզբում միացրեք դրամապանակը:");
+async function handleBuy(amount) {
+    if (!userWallet) return alert("Սկզբում միացրեք դրամապանակը:");
 
-        try {
-            const provider = window.solana;
-            const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('mainnet-beta'));
-            
-            // Այստեղ պետք է ավելացվի USDC տրանզակցիայի կոդը
-            // Առայժմ կցուցադրենք հաղորդագրություն թեստավորման համար
-            alert(`Պատրաստվում է վճարում: Գումար՝ ${amount} USDC`);
-            
-            // Իրական տրանզակցիան պահանջում է SPL Token-ի հասցեները
-        } catch (err) {
-            console.error("Transaction failed", err);
-        }
+    try {
+        const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('mainnet-beta'));
+        const provider = window.solana;
+        
+        // Քո դրամապանակի հասցեն (որտեղ պետք է գնան SOL-երը)
+        const destinationWallet = new solanaWeb3.PublicKey('6ynnNf86uYvjTf3qWf5K1WeS...'); // Լրացրու քո լրիվ հասցեն
+
+        // Տրանզակցիայի ստեղծում
+        const transaction = new solanaWeb3.Transaction().add(
+            solanaWeb3.SystemProgram.transfer({
+                fromPubkey: provider.publicKey,
+                toPubkey: destinationWallet,
+                lamports: amount * solanaWeb3.LAMPORTS_PER_SOL // Սա SOL-ի համար է
+            })
+        );
+
+        transaction.feePayer = provider.publicKey;
+        const { blockhash } = await connection.getRecentBlockhash();
+        transaction.recentBlockhash = blockhash;
+
+        // Խնդրում ենք օգտատիրոջը ստորագրել
+        const signed = await provider.signAndSendTransaction(transaction);
+        alert("Տրանզակցիան ուղարկված է: ID: " + signed.signature);
+
+    } catch (err) {
+        console.error("Transaction failed", err);
+        alert("Գործարքը չեղարկվեց կամ սխալ տեղի ունեցավ:");
     }
+}
 
     // Event Listeners
     connectBtn.addEventListener('click', connectWallet);
