@@ -216,67 +216,77 @@
         <button id="chat-trigger" onclick="toggleChat()"></button>
     </div>
 
-    <script>
-        const translations = {
-            hy: { subtitle: "Մասնակցեք ապագայի ամենաթեժ պրեսեյլին։", raised: "Հավաքված միջոցներ", goal: "նպատակը՝ $900,000", sold: "Վաճառված", rem: "Մնացել է", buy: "Գնել USDC-ով", placeholder: "Հարցրեք ինչ-որ բան..." },
-            en: { subtitle: "Participate in the hottest presale of the future.", raised: "Funds Raised", goal: "Goal: $900,000", sold: "Sold", rem: "Remaining", buy: "Buy with USDC", placeholder: "Ask something..." },
-            ru: { subtitle: "Участвуйте в самом горячем пресейле будущего.", raised: "Собрано средств", goal: "Цель: $900,000", sold: "Продано", rem: "Осталось", buy: "Купить за USDC", placeholder: "Спросите что-нибудь..." }
-        };
+  <script>
+    // Փոփոխականներ
+    let userWallet = null;
+    const connectBtn = document.getElementById('connectBtn');
+    const buyButtons = document.querySelectorAll('.buy-btn');
 
-        function setLanguage(lang) {
-            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById('t-subtitle').innerText = translations[lang].subtitle;
-            document.getElementById('t-raised-lbl').innerText = translations[lang].raised;
-            document.getElementById('t-goal-lbl').innerText = translations[lang].goal;
-            document.getElementById('t-sold-lbl').innerText = translations[lang].sold;
-            document.getElementById('t-rem-lbl').innerText = translations[lang].rem;
-            document.getElementById('user-input').placeholder = translations[lang].placeholder;
-            document.querySelectorAll('.t-buy-btn').forEach(btn => btn.innerText = translations[lang].buy);
-        }
-
-        function toggleChat() {
-            const win = document.getElementById('chat-window');
-            win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
-        }
-
-        async function sendAiMessage() {
-            const input = document.getElementById('user-input');
-            const container = document.getElementById('chat-messages');
-            const text = input.value.trim();
-            if(!text) return;
-
-            const uDiv = document.createElement('div');
-            uDiv.className = 'msg user-msg';
-            uDiv.innerText = text;
-            container.appendChild(uDiv);
-            input.value = '';
-
-            const loader = document.createElement('div');
-            loader.className = 'typing-loader';
-            loader.id = 'ai-loader';
-            loader.innerHTML = '<span></span><span></span><span></span>';
-            container.appendChild(loader);
-            container.scrollTop = container.scrollHeight;
-
+    // 1. Դրամապանակի միացում (Phantom)
+    async function connectWallet() {
+        if (window.solana && window.solana.isPhantom) {
             try {
-                const res = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ message: text })
-                });
-                const data = await res.json();
-                loader.remove();
-                const aiDiv = document.createElement('div');
-                aiDiv.className = 'msg ai-msg';
-                aiDiv.innerText = data.text || "Ներողություն, սխալ տեղի ունեցավ:";
-                container.appendChild(aiDiv);
-            } catch(e) {
-                loader.remove();
+                const resp = await window.solana.connect();
+                userWallet = resp.publicKey.toString();
+                
+                // Փոխում ենք կոճակի տեքստը
+                connectBtn.innerText = userWallet.slice(0, 4) + '...' + userWallet.slice(-4);
+                connectBtn.style.background = '#10b981'; // Կանաչ, երբ միացված է
+                
+                // Ակտիվացնում ենք գնման կոճակները
+                buyButtons.forEach(btn => btn.disabled = false);
+                
+                console.log("Wallet connected:", userWallet);
+            } catch (err) {
+                console.error("Connection cancelled", err);
             }
-            container.scrollTop = container.scrollHeight;
+        } else {
+            alert("Phantom Wallet-ը չի գտնվել: Խնդրում ենք տեղադրել այն:");
+            window.open("https://phantom.app/", "_blank");
         }
-    </script>
+    }
+
+    // 2. Գնման տրամաբանություն (USDC փոխանցում)
+    async function handleBuy(amount) {
+        if (!userWallet) return alert("Սկզբում միացրեք դրամապանակը:");
+
+        try {
+            const provider = window.solana;
+            const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('mainnet-beta'));
+            
+            // Այստեղ պետք է ավելացվի USDC տրանզակցիայի կոդը
+            // Առայժմ կցուցադրենք հաղորդագրություն թեստավորման համար
+            alert(`Պատրաստվում է վճարում: Գումար՝ ${amount} USDC`);
+            
+            // Իրական տրանզակցիան պահանջում է SPL Token-ի հասցեները
+        } catch (err) {
+            console.error("Transaction failed", err);
+        }
+    }
+
+    // Event Listeners
+    connectBtn.addEventListener('click', connectWallet);
+
+    buyButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const amount = btn.getAttribute('data-amount');
+            handleBuy(amount);
+        });
+    });
+
+    // Ավտոմատ ստուգում էջը թարմացնելիս
+    window.addEventListener('load', () => {
+        if (window.solana && window.solana.isPhantom) {
+            window.solana.connect({ onlyIfTrusted: true })
+                .then(({ publicKey }) => {
+                    userWallet = publicKey.toString();
+                    connectBtn.innerText = userWallet.slice(0, 4) + '...' + userWallet.slice(-4);
+                    buyButtons.forEach(btn => btn.disabled = false);
+                })
+                .catch(() => { /* Դեռ վստահված չէ */ });
+        }
+    });
+</script>
 
     <script type="module" src="wallet-logic.js"></script>
     <script type="module" src="usdc-logic.js"></script>
