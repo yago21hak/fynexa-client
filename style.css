@@ -1,0 +1,246 @@
+/* --- Variables & Reset --- */
+:root {
+    --bg: #030712;
+    --card-bg: rgba(17, 24, 39, 0.7);
+    --primary: #6366f1;
+    --primary-glow: rgba(99, 102, 241, 0.4);
+    --secondary: #a855f7;
+    --accent: #10b981;
+    --text: #f9fafb;
+    --text-muted: #94a3b8;
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --nav-height: 70px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-image: 
+        radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.15) 0%, transparent 35%),
+        radial-gradient(circle at 90% 90%, rgba(168, 85, 247, 0.15) 0%, transparent 35%);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* --- Language Switcher (Mobile Friendly) --- */
+.lang-switcher {
+    width: 100%;
+    max-width: 1100px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+}
+
+.lang-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.lang-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    box-shadow: 0 0 15px var(--primary-glow);
+}
+
+/* --- Header Section --- */
+header {
+    text-align: center;
+    margin: 40px 0 50px;
+    padding: 0 10px;
+}
+
+header h1 {
+    font-size: clamp(2.2rem, 10vw, 4rem);
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #fff 20%, var(--primary) 60%, var(--secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+}
+
+header p {
+    color: var(--text-muted);
+    font-size: clamp(0.9rem, 4vw, 1.1rem);
+}
+
+/* --- Stats Card (The Fix) --- */
+.stats-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 28px;
+    padding: clamp(20px, 5vw, 40px);
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 30px;
+}
+
+.stats-header {
+    display: flex;
+    flex-direction: column; /* Mobile first */
+    gap: 15px;
+    text-align: center;
+}
+
+#raised-amount {
+    font-size: clamp(2rem, 8vw, 3rem);
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+}
+
+.goal-amount {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.progress-container {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    height: 14px;
+    border-radius: 50px;
+    margin: 25px 0;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    box-shadow: 0 0 20px var(--primary-glow);
+    transition: width 2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.info-row {
+    display: flex;
+    flex-direction: column; /* Mobile first */
+    gap: 10px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* --- Main Buttons --- */
+#connectBtn {
+    background: #ffffff;
+    color: #000;
+    padding: 16px 40px;
+    border-radius: 100px;
+    border: none;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-bottom: 50px;
+    width: 100%;
+    max-width: 320px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#connectBtn:hover {
+    transform: scale(1.05);
+    background: var(--primary);
+    color: white;
+}
+
+/* --- Grid & Cards --- */
+.cards-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Default: 1 column */
+    gap: 20px;
+    width: 100%;
+    max-width: 1100px;
+}
+
+.package-card {
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 32px;
+    padding: 30px;
+    text-align: center;
+    transition: 0.4s ease;
+}
+
+.package-card:hover {
+    border-color: var(--primary);
+    background: rgba(17, 24, 39, 0.9);
+}
+
+.token-amount { font-size: 2.2rem; font-weight: 800; margin-bottom: 5px; }
+.price-tag { color: var(--accent); margin-bottom: 25px; font-weight: 700; font-size: 1.1rem; }
+
+.action-btn {
+    width: 100%;
+    padding: 15px;
+    border-radius: 18px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.03);
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* --- Responsive Media Queries --- */
+
+/* For Tablets and Desktop */
+@media (min-width: 768px) {
+    .stats-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-end;
+        text-align: left;
+    }
+
+    .info-row {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .cards-grid {
+        grid-template-columns: repeat(3, 1fr); /* 3 cards on desktop */
+    }
+
+    .token-amount { font-size: 2.5rem; }
+}
+
+/* --- AI Chat (Mobile Optimized) --- */
+#chat-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 2000;
+}
+
+#chat-window {
+    width: clamp(300px, 90vw, 380px); /* Fits mobile screens */
+    height: 500px;
+    background: #0f172a;
+    border-radius: 24px;
+    border: 1px solid var(--glass-border);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    margin-bottom: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+}
+
+/* ... (Մնացած չաթի CSS-ը նույնն է, ուղղակի ադապտիվ է) ... */
